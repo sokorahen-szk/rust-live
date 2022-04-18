@@ -7,5 +7,11 @@ build:
 	go mod tidy
 	cd cmd/rust-live && go build -v
 
+run: build
+	cd cmd/rust-live && ./rust-live
+
 clean:
 	cd cmd/rust-live && go clean
+test: proto
+	go test -v ./...
+	go mod tidy
