@@ -10,8 +10,7 @@ service LiveService {
 }
 
 message ListLiveVideosRequest {
-    // 抽出条件を指定する
-    // rust配信者が少ないため、この機能実装はリリース後になるかも。
+    string search_keywords = 1;             // 検索キーワード(タイトル/配信者の検索可)
 }
 
 message ListLiveVideosResponse {
