@@ -1,0 +1,28 @@
+syntax = "proto3";
+package api;
+
+option go_package = "./";
+
+import "api/proto/common.proto";
+
+service LiveService {
+    rpc ListLiveVideos (ListLiveVideosRequest) returns (ListLiveVideosResponse);
+}
+
+message ListLiveVideosRequest {
+    string search_keywords = 1;             // 検索キーワード(タイトル/配信者の検索可)
+}
+
+message ListLiveVideosResponse {
+    repeated LiveVideo liveVideos = 1;      // 配信動画リスト
+    Pagination paginations = 2;             // ページネーション
+}
+
+message LiveVideo {
+    int32 id = 1;                           // 配信動画ID
+    string name = 2;                        // 配信動画名
+    string stremer = 3;                     // 配信者
+    int32 viewer = 4;                       // 視聴者
+    string started_datetime = 5;            // 動画配信日時(RFC3339)
+    string elapsed_times = 6;               // システム時刻と動画配信日時の差分を秒単位で返す.
+}
