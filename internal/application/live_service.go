@@ -6,7 +6,6 @@ import (
 	pb "github.com/sokorahen-szk/rust-live/api/proto"
 
 	"github.com/sokorahen-szk/rust-live/internal/application/form"
-	_ "github.com/sokorahen-szk/rust-live/pkg/logger"
 )
 
 type LiveService struct {

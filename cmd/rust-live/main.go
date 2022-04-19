@@ -8,9 +8,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/sokorahen-szk/rust-live/internal/application"
-	_ "github.com/sokorahen-szk/rust-live/pkg/logger"
+	log "github.com/sokorahen-szk/rust-live/pkg/logger"
 )
 
 const server_port = 9000
