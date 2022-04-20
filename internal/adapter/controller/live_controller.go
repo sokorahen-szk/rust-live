@@ -1,18 +1,18 @@
-package application
+package controller
 
 import (
 	"context"
 
 	pb "github.com/sokorahen-szk/rust-live/api/proto"
 
-	"github.com/sokorahen-szk/rust-live/internal/application/form"
+	"github.com/sokorahen-szk/rust-live/internal/adapter/controller/form"
 )
 
-type LiveService struct {
+type LiveController struct {
 	pb.UnimplementedLiveServiceServer
 }
 
-func (s *LiveService) ListLiveVideos(ctx context.Context, req *pb.ListLiveVideosRequest) (*pb.ListLiveVideosResponse, error) {
+func (s *LiveController) ListLiveVideos(ctx context.Context, req *pb.ListLiveVideosRequest) (*pb.ListLiveVideosResponse, error) {
 	err := form.Validate(form.NewListLiveVideosForm(req))
 	if err != nil {
 		return nil, err

@@ -20,9 +20,10 @@ message ListLiveVideosResponse {
 
 message LiveVideo {
     int32 id = 1;                           // 配信動画ID
-    string name = 2;                        // 配信動画名
+    string title = 2;                       // 配信動画名
     string stremer = 3;                     // 配信者
     int32 viewer = 4;                       // 視聴者
-    string started_datetime = 5;            // 動画配信日時(RFC3339)
-    string elapsed_times = 6;               // システム時刻と動画配信日時の差分を秒単位で返す.
+    string thumbnail_image = 5;             // 動画サムネイル
+    string started_datetime = 6;            // 動画配信日時(RFC3339)
+    string elapsed_times = 7;               // システム時刻と動画配信日時の差分を秒単位で返す.
 }

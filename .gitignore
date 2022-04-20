@@ -12,6 +12,7 @@ rust-live
 # Test binary, built with `go test -c`
 *.test
 api/proto/*.pb.go
+*.drawio.bkp
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
