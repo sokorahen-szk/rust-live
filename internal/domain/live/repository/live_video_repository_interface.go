@@ -4,8 +4,9 @@ import (
 	"context"
 
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
+	"github.com/sokorahen-szk/rust-live/internal/usecase/live/list"
 )
 
-type LiveRepositoryInterface interface {
-	List(context.Context) ([]*entity.LiveVideo, error)
+type LiveVideoRepositoryInterface interface {
+	List(context.Context, *list.ListLiveVideosInput) ([]*entity.LiveVideo, error)
 }

@@ -14,3 +14,7 @@ func NewElapsedTimes(value int) *ElapsedTimes {
 func (ins ElapsedTimes) Int() int {
 	return int(ins)
 }
+
+func (ins ElapsedTimes) Int32() int32 {
+	return int32(ins)
+}

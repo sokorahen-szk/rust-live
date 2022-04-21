@@ -11,11 +11,12 @@ service LiveService {
 
 message ListLiveVideosRequest {
     string search_keywords = 1;             // 検索キーワード(タイトル/配信者の検索可)
+    int32 page = 2;                         // 現在ページ
 }
 
 message ListLiveVideosResponse {
     repeated LiveVideo liveVideos = 1;      // 配信動画リスト
-    Pagination paginations = 2;             // ページネーション
+    Pagination pagination = 2;              // ページネーション
 }
 
 message LiveVideo {
@@ -25,5 +26,6 @@ message LiveVideo {
     int32 viewer = 4;                       // 視聴者
     string thumbnail_image = 5;             // 動画サムネイル
     string started_datetime = 6;            // 動画配信日時(RFC3339)
-    string elapsed_times = 7;               // システム時刻と動画配信日時の差分を秒単位で返す.
+    int32 elapsed_times = 7;                // システム時刻と動画配信日時の差分を秒単位で返す.
+    string elapsed_times_text = 8;          // システム時刻と動画配信日時の差分をテキスト表記で返す.
 }

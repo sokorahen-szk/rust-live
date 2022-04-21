@@ -14,3 +14,7 @@ func NewVideoId(value int) *VideoId {
 func (ins VideoId) Int() int {
 	return int(ins)
 }
+
+func (ins VideoId) Int32() int32 {
+	return int32(ins)
+}
