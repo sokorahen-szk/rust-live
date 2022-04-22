@@ -7,7 +7,6 @@ import (
 )
 
 func NewInjectListLiveVideosUsecase() list.ListLiveVideosUsecaseInterface {
-
 	liveVideoRepository := redis.NewInMemoryLiveVideoRepository()
 	return NewListLiveVideosUsecase(liveVideoRepository)
 }

@@ -13,18 +13,33 @@ func Test_NewListLiveVideosUsecase(t *testing.T) {
 	a := assert.New(t)
 	ctx := context.Background()
 
-	searchKeywords := "test"
+	listLiveUsecase := NewInjectListLiveVideosUsecase()
 
-	t.Run("正常系/配信動画リスト取得が正しくできること", func(t *testing.T) {
-		listLiveUsecase := NewInjectListLiveVideosUsecase()
-		input := list.NewListLiveVideosInput(searchKeywords)
+	t.Run("正常系/配信動画リスト取得", func(t *testing.T) {
+		tests := []struct {
+			name string
+			arg  string
+			want int
+		}{
+			{"検索キーワードが空の場合、10件を返す.", "", 10},
+			{"検索キーワードを指定して、一致するデータがない場合、0件を返す.", "太郎", 0},
+			{"検索キーワードを指定して、一致するデータが1件の場合、1件を返す.", "stremer2", 1},
+		}
+		for _, p := range tests {
 
-		res, err := listLiveUsecase.Handle(ctx, input)
-		a.IsType(res, &pb.ListLiveVideosResponse{})
-		a.Len(res.LiveVideos, 10)
-		a.NoError(err)
+			input := list.NewListLiveVideosInput(p.arg)
+
+			t.Run(p.name, func(t *testing.T) {
+				res, err := listLiveUsecase.Handle(ctx, input)
+				a.IsType(res, &pb.ListLiveVideosResponse{})
+				a.Len(res.LiveVideos, p.want)
+				a.NoError(err)
+			})
+		}
+
 	})
 	t.Run("異常系/配信動画リスト取得失敗", func(t *testing.T) {
+		searchKeywords := "keywords"
 		ctxWithError := context.WithValue(ctx, "error", "error")
 
 		listLiveUsecase := NewInjectListLiveVideosUsecase()
