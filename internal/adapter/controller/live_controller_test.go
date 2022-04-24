@@ -1,4 +1,4 @@
-package application
+package controller
 
 import (
 	"context"
@@ -8,14 +8,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_ListLiveVideos(t *testing.T) {
+func Test_LiveController_ListLiveVideos(t *testing.T) {
 	a := assert.New(t)
 	ctx := context.Background()
 
 	t.Run("正常に処理が終了すること", func(t *testing.T) {
 		req := &pb.ListLiveVideosRequest{}
 
-		c := LiveService{}
+		c := LiveController{}
 
 		res, err := c.ListLiveVideos(ctx, req)
 		a.NoError(err)

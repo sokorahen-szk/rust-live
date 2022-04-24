@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/sokorahen-szk/rust-live/internal/application"
+	c "github.com/sokorahen-szk/rust-live/internal/adapter/controller"
 	log "github.com/sokorahen-szk/rust-live/pkg/logger"
 )
 
@@ -23,7 +23,7 @@ func main() {
 	server := grpc.NewServer()
 	reflection.Register(server)
 
-	pb.RegisterLiveServiceServer(server, &application.LiveService{})
+	pb.RegisterLiveServiceServer(server, &c.LiveController{})
 
 	log.Infof("server starting port: %d", server_port)
 	if err := server.Serve(listener); err != nil {

@@ -13,3 +13,7 @@ func NewListLiveVideosForm(req *pb.ListLiveVideosRequest) ListLiveVideosForm {
 		SearchKeywords: req.GetSearchKeywords(),
 	}
 }
+
+func (ins ListLiveVideosForm) GetSearchKeywords() string {
+	return ins.SearchKeywords
+}
