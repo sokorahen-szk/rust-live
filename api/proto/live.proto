@@ -7,25 +7,45 @@ import "api/proto/common.proto";
 
 service LiveService {
     rpc ListLiveVideos (ListLiveVideosRequest) returns (ListLiveVideosResponse);
+    rpc ListArchiveVideos (ListArchiveVideosRequest) returns (ListArchiveVideosResponse);
 }
 
 message ListLiveVideosRequest {
-    string search_keywords = 1;             // 検索キーワード(タイトル/配信者の検索可)
-    int32 page = 2;                         // 現在ページ
+    string search_keywords = 1;                 // 検索キーワード(タイトル/配信者の検索可)
+    int32 page = 2;                             // 現在ページ
 }
 
 message ListLiveVideosResponse {
-    repeated LiveVideo liveVideos = 1;      // 配信動画リスト
-    Pagination pagination = 2;              // ページネーション
+    repeated LiveVideo liveVideos = 1;          // 配信動画リスト
+    Pagination pagination = 2;                  // ページネーション
+}
+
+message ListArchiveVideosRequest {
+    string search_keywords = 1;                 // 検索キーワード(タイトル/配信者の検索可)
+    int32 page = 2;                             // 現在ページ
+}
+
+message ListArchiveVideosResponse {
+    repeated ArchiveVideo archiveVideos = 1;    // 配信動画リスト
+    Pagination pagination = 2;                  // ページネーション
 }
 
 message LiveVideo {
-    int32 id = 1;                           // 配信動画ID
-    string title = 2;                       // 配信動画名
-    string stremer = 3;                     // 配信者
-    int32 viewer = 4;                       // 視聴者
-    string thumbnail_image = 5;             // 動画サムネイル
-    string started_datetime = 6;            // 動画配信日時(RFC3339)
-    int32 elapsed_times = 7;                // システム時刻と動画配信日時の差分を秒単位で返す.
-    string elapsed_times_text = 8;          // システム時刻と動画配信日時の差分をテキスト表記で返す.
+    int32 id = 1;                               // 配信動画ID
+    string title = 2;                           // 配信動画名
+    string stremer = 3;                         // 配信者
+    int32 viewer = 4;                           // 視聴者
+    string thumbnail_image = 5;                 // 動画サムネイル
+    string started_datetime = 6;                // 動画配信開始日時(RFC3339)
+    int32 elapsed_times = 7;                    // システム時刻と動画配信日時の差分を秒単位で返す.
+    string elapsed_times_text = 8;              // システム時刻と動画配信日時の差分をテキスト表記で返す.
+}
+
+message ArchiveVideo {
+    int32 id = 1;                               // 配信動画ID
+    string title = 2;                           // 配信動画名
+    string stremer = 3;                         // 配信者
+    string thumbnail_image = 4;                 // 動画サムネイル
+    string started_datetime = 5;                // 動画配信開始日時(RFC3339)
+    string ended_datetime = 6;                  // 動画配信終了日時(RFC3339)
 }
