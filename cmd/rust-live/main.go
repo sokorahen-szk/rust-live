@@ -5,27 +5,28 @@ import (
 	"net"
 
 	pb "github.com/sokorahen-szk/rust-live/api/proto"
+	cfg "github.com/sokorahen-szk/rust-live/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	c "github.com/sokorahen-szk/rust-live/internal/adapter/controller"
+	controller "github.com/sokorahen-szk/rust-live/internal/adapter/controller"
 	log "github.com/sokorahen-szk/rust-live/pkg/logger"
 )
 
-const server_port = 9000
-
 func main() {
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", server_port))
+	c := cfg.NewConfig()
+
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", c.Port))
 	if err != nil {
-		log.Fatalf("failed server binding port %d", server_port)
+		log.Fatalf("failed server binding port %d", c.Port)
 	}
 
 	server := grpc.NewServer()
 	reflection.Register(server)
 
-	pb.RegisterLiveServiceServer(server, &c.LiveController{})
+	pb.RegisterLiveServiceServer(server, &controller.LiveController{})
 
-	log.Infof("server starting port: %d", server_port)
+	log.Infof("server starting port: %d", c.Port)
 	if err := server.Serve(listener); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
