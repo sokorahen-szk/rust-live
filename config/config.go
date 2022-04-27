@@ -25,7 +25,7 @@ func (c *Config) Load() *Config {
 
 	return &Config{
 		Env:  os.Getenv("APP_ENV"),
-		Port: c.Int(os.Getenv("APP_PORT")),
+		Port: c.Int(os.Getenv("APP_SERVER_PORT")),
 	}
 }
 
