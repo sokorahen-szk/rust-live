@@ -12,6 +12,10 @@ run: build
 
 clean:
 	cd cmd/rust-live && go clean
+
 test: proto
 	go test -v ./...
 	go mod tidy
+
+docker-compose:
+	docker-compose --env-file .env -f docker-compose.yml up --build
