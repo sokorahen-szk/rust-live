@@ -3,8 +3,6 @@ package config
 import (
 	"os"
 	"strconv"
-
-	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -18,11 +16,6 @@ func NewConfig() *Config {
 }
 
 func (c *Config) Load() *Config {
-	err := godotenv.Load("../../.env")
-	if err != nil {
-		panic(err)
-	}
-
 	return &Config{
 		Env:  os.Getenv("APP_ENV"),
 		Port: c.Int(os.Getenv("APP_SERVER_PORT")),
