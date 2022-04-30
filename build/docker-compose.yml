@@ -1,22 +1,6 @@
 version: "3.8"
 
 services:
-  app:
-    container_name: app
-    build:
-      context: ../
-      dockerfile: build/package/app/Dockerfile
-      args:
-        - APP_SERVER_PORT=${APP_SERVER_PORT}
-        - APP_ROOT_PATH=${APP_ROOT_PATH}
-        - APP_EXEC_PATH=${APP_EXEC_PATH}
-    volumes:
-      - ../:${APP_ROOT_PATH}
-    env_file:
-      - ../.env
-    ports:
-      - "${APP_SERVER_PORT}:${APP_SERVER_PORT}"
-
   redis:
     container_name: redis
     image: "redis:latest"
@@ -31,8 +15,27 @@ services:
     environment:
       POSTGRES_USER: "${POSTGRESQL_USER}"
       POSTGRES_PASSWORD: "${POSTGRESQL_PASSWORD}"
-      POSTGRES_DB: "${POSTGRESQL_DB}"
+      POSTGRES_DB: "${POSTGRESQL_DB_NAME}"
     tty: true
     command: postgres -c log_destination=stderr -c log_statement=all -c log_connections=on -c log_disconnections=on
     ports:
       - "${POSTGRESQL_SERVER_PORT}:${POSTGRESQL_SERVER_PORT}"
+
+  app:
+    container_name: app
+    build:
+      context: ../
+      dockerfile: build/package/app/Dockerfile
+      args:
+        - APP_SERVER_PORT=${APP_SERVER_PORT}
+        - APP_ROOT_PATH=${APP_ROOT_PATH}
+        - APP_EXEC_PATH=${APP_EXEC_PATH}
+    volumes:
+      - ../:${APP_ROOT_PATH}
+    env_file:
+      - ../.env
+    depends_on:
+      - redis
+      - postgresql
+    ports:
+      - "${APP_SERVER_PORT}:${APP_SERVER_PORT}"
