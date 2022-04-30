@@ -19,3 +19,7 @@ test: proto
 
 docker-compose:
 	docker-compose --env-file .env -f ./build/docker-compose.yml up --build
+
+docker-compose-destroy:
+	docker-compose --env-file .env -f ./build/docker-compose.yml down --rmi all -v \
+	&& docker volume prune --force
