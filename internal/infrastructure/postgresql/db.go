@@ -14,14 +14,13 @@ type PostgreSql struct {
 
 func NewPostgreSQL(c *cfg.Config) *PostgreSql {
 	dsn := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=%s",
+		"host=%s user=%s password=%s dbname=%s port=%d sslmode=%s",
 		c.PostgreSql.Host,
 		c.PostgreSql.User,
 		c.PostgreSql.Password,
 		c.PostgreSql.DbName,
 		c.PostgreSql.Port,
 		c.PostgreSql.SslMode,
-		c.PostgreSql.Tz,
 	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -32,4 +31,10 @@ func NewPostgreSQL(c *cfg.Config) *PostgreSql {
 	return &PostgreSql{
 		db: db,
 	}
+}
+
+func (ps *PostgreSql) Create(value interface{}) {
+	ps.db.ToSQL(func(tx *gorm.DB) *gorm.DB {
+		return ps.db.Create(value)
+	})
 }
