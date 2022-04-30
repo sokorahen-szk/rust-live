@@ -30,6 +30,7 @@ func (repository inMemoryLiveVideoRepository) liveVideos(searchKeywords string) 
 	for i := 1; i <= 10; i++ {
 
 		videoTitle := entity.NewVideoTitle(fmt.Sprintf("test%d", i))
+		videoUrl := entity.NewVideoUrl("https://example.com")
 		videoStremer := entity.NewVideoStremer(fmt.Sprintf("stremer%d", i))
 
 		if !strings.Contains(videoTitle.String(), searchKeywords) &&
@@ -40,6 +41,7 @@ func (repository inMemoryLiveVideoRepository) liveVideos(searchKeywords string) 
 		liveVideo := entity.NewLiveVideo(
 			entity.NewVideoId(i),
 			videoTitle,
+			videoUrl,
 			videoStremer,
 			entity.NewThumbnailImage(fmt.Sprintf("src/image%d.jpg", i)),
 			entity.NewStartedDatetime("2022-04-01T00:00:00Z"),

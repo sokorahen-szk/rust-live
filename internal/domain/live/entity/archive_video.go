@@ -3,6 +3,7 @@ package entity
 type ArchiveVideo struct {
 	id              *VideoId
 	title           *VideoTitle
+	url             *VideoUrl
 	stremer         *VideoStremer
 	thumbnailImage  *ThumbnailImage
 	startedDatetime *StartedDatetime
@@ -12,6 +13,7 @@ type ArchiveVideo struct {
 func NewArchiveVideo(
 	videoId *VideoId,
 	videoTitle *VideoTitle,
+	videoUrl *VideoUrl,
 	videoStremer *VideoStremer,
 	thumbnailImage *ThumbnailImage,
 	startedDatetime *StartedDatetime,
@@ -20,6 +22,7 @@ func NewArchiveVideo(
 	return &ArchiveVideo{
 		id:              videoId,
 		title:           videoTitle,
+		url:             videoUrl,
 		stremer:         videoStremer,
 		thumbnailImage:  thumbnailImage,
 		startedDatetime: startedDatetime,
@@ -33,6 +36,10 @@ func (ins ArchiveVideo) Id() *VideoId {
 
 func (ins ArchiveVideo) Title() *VideoTitle {
 	return ins.title
+}
+
+func (ins ArchiveVideo) Url() *VideoUrl {
+	return ins.url
 }
 
 func (ins ArchiveVideo) Stremer() *VideoStremer {
