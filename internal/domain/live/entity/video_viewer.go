@@ -14,3 +14,7 @@ func NewVideoViewer(value int) *VideoViewer {
 func (ins VideoViewer) Int() int {
 	return int(ins)
 }
+
+func (ins VideoViewer) Int32() int32 {
+	return int32(ins)
+}

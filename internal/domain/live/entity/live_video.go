@@ -1,52 +1,66 @@
 package entity
 
 type LiveVideo struct {
-	id              *VideoId
-	title           *VideoTitle
-	stremer         *VideoStremer
-	thumbnailImage  *ThumbnailImage
-	startedDatetime *StartedDatetime
-	elapsedTimes    *ElapsedTimes
+	Id              *VideoId         `json:"id"`
+	Title           *VideoTitle      `json:"title"`
+	Url             *VideoUrl        `json:"url"`
+	Stremer         *VideoStremer    `json:"stremer"`
+	Viewer          *VideoViewer     `json:"viewer"`
+	ThumbnailImage  *ThumbnailImage  `json:"thumbnail_image"`
+	StartedDatetime *StartedDatetime `json:"started_datetime"`
+	ElapsedTimes    *ElapsedTimes    `json:"ended_datetime"`
 }
 
 func NewLiveVideo(
 	videoId *VideoId,
 	videoTitle *VideoTitle,
+	videoUrl *VideoUrl,
 	videoStremer *VideoStremer,
+	videoViewer *VideoViewer,
 	thumbnailImage *ThumbnailImage,
 	startedDatetime *StartedDatetime,
 	elapsedTimes *ElapsedTimes,
 ) *LiveVideo {
 	return &LiveVideo{
-		id:              videoId,
-		title:           videoTitle,
-		stremer:         videoStremer,
-		thumbnailImage:  thumbnailImage,
-		startedDatetime: startedDatetime,
-		elapsedTimes:    elapsedTimes,
+		Id:              videoId,
+		Title:           videoTitle,
+		Url:             videoUrl,
+		Stremer:         videoStremer,
+		Viewer:          videoViewer,
+		ThumbnailImage:  thumbnailImage,
+		StartedDatetime: startedDatetime,
+		ElapsedTimes:    elapsedTimes,
 	}
 }
 
-func (ins LiveVideo) Id() *VideoId {
-	return ins.id
+func (ins LiveVideo) GetId() *VideoId {
+	return ins.Id
 }
 
-func (ins LiveVideo) Title() *VideoTitle {
-	return ins.title
+func (ins LiveVideo) GetTitle() *VideoTitle {
+	return ins.Title
 }
 
-func (ins LiveVideo) Stremer() *VideoStremer {
-	return ins.stremer
+func (ins LiveVideo) GetUrl() *VideoUrl {
+	return ins.Url
 }
 
-func (ins LiveVideo) ThumbnailImage() *ThumbnailImage {
-	return ins.thumbnailImage
+func (ins LiveVideo) GetStremer() *VideoStremer {
+	return ins.Stremer
 }
 
-func (ins LiveVideo) StartedDatetime() *StartedDatetime {
-	return ins.startedDatetime
+func (ins LiveVideo) GetViewer() *VideoViewer {
+	return ins.Viewer
 }
 
-func (ins LiveVideo) ElapsedTimes() *ElapsedTimes {
-	return ins.elapsedTimes
+func (ins LiveVideo) GetThumbnailImage() *ThumbnailImage {
+	return ins.ThumbnailImage
+}
+
+func (ins LiveVideo) GetStartedDatetime() *StartedDatetime {
+	return ins.StartedDatetime
+}
+
+func (ins LiveVideo) GetElapsedTimes() *ElapsedTimes {
+	return ins.ElapsedTimes
 }
