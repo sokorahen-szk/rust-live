@@ -3,6 +3,7 @@ package live
 import (
 	"context"
 	"encoding/json"
+	"strings"
 
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/repository"
@@ -34,7 +35,7 @@ func (repository *liveVideoRepository) List(ctx context.Context, listInput *list
 		return nil, err
 	}
 
-	return liveVideos, nil
+	return repository.listFilter(liveVideos, listInput), nil
 }
 
 func (repository *liveVideoRepository) Create(ctx context.Context, liveVideos []*entity.LiveVideo) error {
@@ -54,4 +55,19 @@ func (repository *liveVideoRepository) Create(ctx context.Context, liveVideos []
 	}
 
 	return nil
+}
+
+func (repository *liveVideoRepository) listFilter(liveVideos []*entity.LiveVideo, listInput *list.ListLiveVideosInput) []*entity.LiveVideo {
+	filtered := make([]*entity.LiveVideo, 0)
+
+	for _, liveVideo := range liveVideos {
+		if !strings.Contains(liveVideo.GetTitle().String(), listInput.SearchKeywords()) &&
+			!strings.Contains(liveVideo.GetStremer().String(), listInput.SearchKeywords()) {
+			continue
+		}
+
+		filtered = append(filtered, liveVideo)
+	}
+
+	return filtered
 }

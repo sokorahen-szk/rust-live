@@ -65,3 +65,7 @@ func (c *Config) Int(value string) int {
 	}
 	return num
 }
+
+func (c *Config) IsProd() bool {
+	return c.Env == "prod"
+}

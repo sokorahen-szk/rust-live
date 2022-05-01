@@ -1,4 +1,4 @@
-package redis
+package live
 
 import (
 	"context"
@@ -11,13 +11,13 @@ import (
 	"github.com/sokorahen-szk/rust-live/internal/usecase/live/list"
 )
 
-type inMemoryLiveVideoRepository struct{}
+type mockLiveVideoRepository struct{}
 
-func NewInMemoryLiveVideoRepository() repository.LiveVideoRepositoryInterface {
-	return inMemoryLiveVideoRepository{}
+func NewMockLiveVideoRepository() repository.LiveVideoRepositoryInterface {
+	return mockLiveVideoRepository{}
 }
 
-func (repository inMemoryLiveVideoRepository) List(ctx context.Context, input *list.ListLiveVideosInput) ([]*entity.LiveVideo, error) {
+func (repository mockLiveVideoRepository) List(ctx context.Context, input *list.ListLiveVideosInput) ([]*entity.LiveVideo, error) {
 	if ctx.Value("error") == "error" {
 		return nil, errors.New("error")
 	}
@@ -25,7 +25,7 @@ func (repository inMemoryLiveVideoRepository) List(ctx context.Context, input *l
 	return repository.liveVideos(input.SearchKeywords()), nil
 }
 
-func (repository inMemoryLiveVideoRepository) liveVideos(searchKeywords string) []*entity.LiveVideo {
+func (repository mockLiveVideoRepository) liveVideos(searchKeywords string) []*entity.LiveVideo {
 	liveVideos := make([]*entity.LiveVideo, 0)
 	for i := 1; i <= 10; i++ {
 
@@ -54,6 +54,6 @@ func (repository inMemoryLiveVideoRepository) liveVideos(searchKeywords string) 
 	return liveVideos
 }
 
-func (repository inMemoryLiveVideoRepository) Create(_ context.Context, _ []*entity.LiveVideo) error {
+func (repository mockLiveVideoRepository) Create(_ context.Context, _ []*entity.LiveVideo) error {
 	return nil
 }

@@ -15,7 +15,7 @@ func Test_NewRedis(t *testing.T) {
 	a.NotNil(redis.db)
 }
 
-func Test_Set(t *testing.T) {
+func Test_Redis_Set(t *testing.T) {
 	a := assert.New(t)
 	ctx := context.Background()
 	redis := NewRedis(ctx, cfg.NewConfig())
@@ -25,7 +25,7 @@ func Test_Set(t *testing.T) {
 	a.NoError(err)
 }
 
-func Test_Get(t *testing.T) {
+func Test_Redis_Get(t *testing.T) {
 	a := assert.New(t)
 	ctx := context.Background()
 	redis := NewRedis(ctx, cfg.NewConfig())
@@ -37,7 +37,7 @@ func Test_Get(t *testing.T) {
 	a.Equal(expected, actual)
 }
 
-func Test_Truncate(t *testing.T) {
+func Test_Redis_Truncate(t *testing.T) {
 	a := assert.New(t)
 	ctx := context.Background()
 	redis := NewRedis(ctx, cfg.NewConfig())

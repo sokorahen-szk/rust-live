@@ -13,7 +13,7 @@ func Test_NewListLiveVideosUsecase(t *testing.T) {
 	a := assert.New(t)
 	ctx := context.Background()
 
-	listLiveUsecase := NewInjectListLiveVideosUsecase()
+	listLiveUsecase := NewInjectListLiveVideosUsecase(ctx)
 
 	t.Run("正常系/配信動画リスト取得", func(t *testing.T) {
 		tests := []struct {
@@ -42,7 +42,7 @@ func Test_NewListLiveVideosUsecase(t *testing.T) {
 		searchKeywords := "keywords"
 		ctxWithError := context.WithValue(ctx, "error", "error")
 
-		listLiveUsecase := NewInjectListLiveVideosUsecase()
+		listLiveUsecase := NewInjectListLiveVideosUsecase(ctx)
 		input := list.NewListLiveVideosInput(searchKeywords)
 
 		res, err := listLiveUsecase.Handle(ctxWithError, input)
