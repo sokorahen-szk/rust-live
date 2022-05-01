@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_NewListLiveVideosUsecase(t *testing.T) {
+func Test_ListLiveVideosUsecase_Handle(t *testing.T) {
 	a := assert.New(t)
 	ctx := context.Background()
 

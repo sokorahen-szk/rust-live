@@ -9,19 +9,19 @@ import (
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/repository"
 )
 
-type ListLiveVideosUsecase struct {
+type listLiveVideosUsecase struct {
 	liveVideoRepository repository.LiveVideoRepositoryInterface
 }
 
 func NewListLiveVideosUsecase(
 	liveVideoRepository repository.LiveVideoRepositoryInterface,
 ) list.ListLiveVideosUsecaseInterface {
-	return ListLiveVideosUsecase{
+	return listLiveVideosUsecase{
 		liveVideoRepository: liveVideoRepository,
 	}
 }
 
-func (ins ListLiveVideosUsecase) Handle(ctx context.Context, input *list.ListLiveVideosInput) (*pb.ListLiveVideosResponse, error) {
+func (ins listLiveVideosUsecase) Handle(ctx context.Context, input *list.ListLiveVideosInput) (*pb.ListLiveVideosResponse, error) {
 	liveVideos, err := ins.liveVideoRepository.List(ctx, input)
 	if err != nil {
 		return nil, err
