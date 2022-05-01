@@ -5,6 +5,7 @@ type LiveVideo struct {
 	Title           *VideoTitle      `json:"title"`
 	Url             *VideoUrl        `json:"url"`
 	Stremer         *VideoStremer    `json:"stremer"`
+	Viewer          *VideoViewer     `json:"viewer"`
 	ThumbnailImage  *ThumbnailImage  `json:"thumbnail_image"`
 	StartedDatetime *StartedDatetime `json:"started_datetime"`
 	ElapsedTimes    *ElapsedTimes    `json:"ended_datetime"`
@@ -15,6 +16,7 @@ func NewLiveVideo(
 	videoTitle *VideoTitle,
 	videoUrl *VideoUrl,
 	videoStremer *VideoStremer,
+	videoViewer *VideoViewer,
 	thumbnailImage *ThumbnailImage,
 	startedDatetime *StartedDatetime,
 	elapsedTimes *ElapsedTimes,
@@ -24,6 +26,7 @@ func NewLiveVideo(
 		Title:           videoTitle,
 		Url:             videoUrl,
 		Stremer:         videoStremer,
+		Viewer:          videoViewer,
 		ThumbnailImage:  thumbnailImage,
 		StartedDatetime: startedDatetime,
 		ElapsedTimes:    elapsedTimes,
@@ -44,6 +47,10 @@ func (ins LiveVideo) GetUrl() *VideoUrl {
 
 func (ins LiveVideo) GetStremer() *VideoStremer {
 	return ins.Stremer
+}
+
+func (ins LiveVideo) GetViewer() *VideoViewer {
+	return ins.Viewer
 }
 
 func (ins LiveVideo) GetThumbnailImage() *ThumbnailImage {

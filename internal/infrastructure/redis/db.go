@@ -16,9 +16,9 @@ type Redis struct {
 }
 
 type RedisSetData struct {
-	key   string
-	value interface{}
-	ttl   *time.Duration
+	Key   string
+	Value interface{}
+	Ttl   *time.Duration
 }
 
 func NewRedis(ctx context.Context, c *cfg.Config) *Redis {
@@ -41,18 +41,18 @@ func NewRedis(ctx context.Context, c *cfg.Config) *Redis {
 	}
 }
 
-func (redis *Redis) Set(setData *RedisSetData) error {
+func (redis *Redis) Set(ctx context.Context, setData *RedisSetData) error {
 	ttl := redis.defaultTtl
-	if setData.ttl != nil {
-		ttl = *setData.ttl
+	if setData.Ttl != nil {
+		ttl = *setData.Ttl
 	}
 
-	statusCmd := redis.db.Set(redis.ctx, setData.key, setData.value, ttl)
+	statusCmd := redis.db.Set(ctx, setData.Key, setData.Value, ttl)
 	return statusCmd.Err()
 }
 
-func (redis *Redis) Get(key string) (string, error) {
-	val, err := redis.db.Get(redis.ctx, key).Result()
+func (redis *Redis) Get(ctx context.Context, key string) (string, error) {
+	val, err := redis.db.Get(ctx, key).Result()
 	return val, err
 }
 

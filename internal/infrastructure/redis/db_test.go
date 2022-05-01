@@ -21,7 +21,7 @@ func Test_Set(t *testing.T) {
 	redis := NewRedis(ctx, cfg.NewConfig())
 
 	data := &RedisSetData{"key", "value", nil}
-	err := redis.Set(data)
+	err := redis.Set(ctx, data)
 	a.NoError(err)
 }
 
@@ -32,7 +32,7 @@ func Test_Get(t *testing.T) {
 
 	expected := "value"
 	searchKey := "key"
-	actual, err := redis.Get(searchKey)
+	actual, err := redis.Get(ctx, searchKey)
 	a.NoError(err)
 	a.Equal(expected, actual)
 }

@@ -43,6 +43,7 @@ func (repository inMemoryLiveVideoRepository) liveVideos(searchKeywords string) 
 			videoTitle,
 			videoUrl,
 			videoStremer,
+			entity.NewVideoViewer(12),
 			entity.NewThumbnailImage(fmt.Sprintf("src/image%d.jpg", i)),
 			entity.NewStartedDatetime("2022-04-01T00:00:00Z"),
 			entity.NewElapsedTimes(1),
@@ -51,4 +52,8 @@ func (repository inMemoryLiveVideoRepository) liveVideos(searchKeywords string) 
 	}
 
 	return liveVideos
+}
+
+func (repository inMemoryLiveVideoRepository) Create(_ context.Context, _ []*entity.LiveVideo) error {
+	return nil
 }
