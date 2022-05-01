@@ -9,6 +9,7 @@ type Config struct {
 	Env        string
 	Port       int
 	PostgreSql PostgreSql
+	Redis      Redis
 }
 
 type PostgreSql struct {
@@ -19,6 +20,14 @@ type PostgreSql struct {
 	Tz       string
 	SslMode  string
 	Port     int
+}
+
+type Redis struct {
+	Host           string
+	Password       string
+	Port           int
+	DbNumber       int
+	DefaultTtlHour int
 }
 
 func NewConfig() *Config {
@@ -38,6 +47,13 @@ func (c *Config) Load() *Config {
 			Tz:       os.Getenv("POSTGRESQL_TZ"),
 			SslMode:  os.Getenv("POSTGRESQL_SSL_MODE"),
 			Port:     c.Int(os.Getenv("POSTGRESQL_SERVER_PORT")),
+		},
+		Redis: Redis{
+			Host:           os.Getenv("REDIS_HOST"),
+			Password:       os.Getenv("REDIS_PASSWORD"),
+			Port:           c.Int(os.Getenv("REDIS_SERVER_PORT")),
+			DbNumber:       c.Int(os.Getenv("REDIS_DB_NUMBER")),
+			DefaultTtlHour: c.Int(os.Getenv("REDIS_DEFAULT_TTL_HOUR")),
 		},
 	}
 }
