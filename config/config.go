@@ -10,6 +10,7 @@ type Config struct {
 	Port       int
 	PostgreSql PostgreSql
 	Redis      Redis
+	Batch      Batch
 }
 
 type PostgreSql struct {
@@ -28,6 +29,13 @@ type Redis struct {
 	Port           int
 	DbNumber       int
 	DefaultTtlHour int
+}
+
+type Batch struct {
+	ApiTwitchClientId  string
+	ApiTwtichSecretKey string
+
+	ApiYoutubeSecretKey string
 }
 
 func NewConfig() *Config {
@@ -54,6 +62,11 @@ func (c *Config) Load() *Config {
 			Port:           c.Int(os.Getenv("REDIS_SERVER_PORT")),
 			DbNumber:       c.Int(os.Getenv("REDIS_DB_NUMBER")),
 			DefaultTtlHour: c.Int(os.Getenv("REDIS_DEFAULT_TTL_HOUR")),
+		},
+		Batch: Batch{
+			ApiTwitchClientId:   os.Getenv("API_TWITCH_CLIENT_ID"),
+			ApiTwtichSecretKey:  os.Getenv("API_TWITCH_SECRET_KEY"),
+			ApiYoutubeSecretKey: os.Getenv("API_YOUTUBE_SECRET_KEY"),
 		},
 	}
 }

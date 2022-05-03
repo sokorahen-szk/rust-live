@@ -1,4 +1,4 @@
-package api
+package batch
 
 import (
 	"encoding/json"
@@ -17,13 +17,13 @@ type HttpClient struct {
 }
 
 type RequestHeader struct {
-	key   string
-	value string
+	Key   string
+	Value string
 }
 
 type RequestParam struct {
-	key   string
-	value string
+	Key   string
+	Value string
 }
 
 type GetJsonResponse struct {
@@ -47,13 +47,13 @@ func NewHttpClient(method string, url string, body io.Reader) *HttpClient {
 
 func (r *HttpClient) AddHeaders(headers []RequestHeader) {
 	for _, header := range headers {
-		r.req.Header.Add(header.key, header.value)
+		r.req.Header.Add(header.Key, header.Value)
 	}
 }
 
 func (r *HttpClient) AddParams(params []RequestParam) {
 	for _, param := range params {
-		r.params.Add(param.key, param.value)
+		r.params.Add(param.Key, param.Value)
 	}
 }
 
