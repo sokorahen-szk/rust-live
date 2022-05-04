@@ -26,8 +26,8 @@ type RequestParam struct {
 	Value string
 }
 
-type GetJsonResponse struct {
-	v interface{}
+type GetResponse struct {
+	Data interface{}
 }
 
 func NewHttpClient(method string, url string, body io.Reader) *HttpClient {
@@ -57,7 +57,13 @@ func (r *HttpClient) AddParams(params []RequestParam) {
 	}
 }
 
-func (r *HttpClient) GetJson(v interface{}) (*GetJsonResponse, error) {
+func (r *HttpClient) DeleteParams(params []RequestParam) {
+	for _, key := range r.mapKey(params) {
+		r.params.Del(key)
+	}
+}
+
+func (r *HttpClient) Get(v interface{}) (*GetResponse, error) {
 	r.req.URL.RawQuery = r.params.Encode()
 
 	client := r.createClient()
@@ -75,10 +81,10 @@ func (r *HttpClient) GetJson(v interface{}) (*GetJsonResponse, error) {
 
 	err = json.Unmarshal([]byte(body), v)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
-	response := &GetJsonResponse{v: v}
+	response := &GetResponse{Data: v}
 	return response, nil
 }
 
@@ -86,4 +92,12 @@ func (r *HttpClient) createClient() *http.Client {
 	return &http.Client{
 		Timeout: time.Duration(httpClientTimeout * time.Second),
 	}
+}
+
+func (r *HttpClient) mapKey(params []RequestParam) []string {
+	keys := make([]string, 0)
+	for _, param := range params {
+		keys = append(keys, param.Key)
+	}
+	return keys
 }

@@ -30,13 +30,13 @@ func Test_NewHttpClient_Get(t *testing.T) {
 
 	t.Run("Getパラメータなし", func(t *testing.T) {
 		client := NewHttpClient(http.MethodGet, url, nil)
-		httpBinOrgGet := new(TestHttpBinOrgGet)
+		httpBinOrgGet := &TestHttpBinOrgGet{}
 
-		res, err := client.GetJson(httpBinOrgGet)
+		res, err := client.Get(httpBinOrgGet)
 		a.NoError(err)
 		a.NotNil(res)
 
-		actual := res.v.(*TestHttpBinOrgGet)
+		actual := res.Data.(*TestHttpBinOrgGet)
 		a.Equal(url, actual.Url)
 		a.Equal("", actual.Args.Test)
 		a.Equal("", actual.Headers.Hoge)
@@ -44,14 +44,14 @@ func Test_NewHttpClient_Get(t *testing.T) {
 	})
 	t.Run("Getパラメータあり", func(t *testing.T) {
 		client := NewHttpClient(http.MethodGet, url, nil)
-		httpBinOrgGet := new(TestHttpBinOrgGet)
+		httpBinOrgGet := &TestHttpBinOrgGet{}
 
 		client.AddParams([]RequestParam{{"test", "abcd"}})
-		res, err := client.GetJson(httpBinOrgGet)
+		res, err := client.Get(httpBinOrgGet)
 		a.NoError(err)
 		a.NotNil(res)
 
-		actual := res.v.(*TestHttpBinOrgGet)
+		actual := res.Data.(*TestHttpBinOrgGet)
 		a.Equal(fmt.Sprintf("%s?test=abcd", url), actual.Url)
 		a.Equal("abcd", actual.Args.Test)
 		a.Equal("", actual.Headers.Hoge)
@@ -59,16 +59,16 @@ func Test_NewHttpClient_Get(t *testing.T) {
 	})
 	t.Run("Getパラメータあり, ヘッダー追加あり", func(t *testing.T) {
 		client := NewHttpClient(http.MethodGet, url, nil)
-		httpBinOrgGet := new(TestHttpBinOrgGet)
+		httpBinOrgGet := &TestHttpBinOrgGet{}
 
 		client.AddParams([]RequestParam{{"test", "abcd"}})
 		client.AddHeaders([]RequestHeader{{"Hoge", "test"}})
 		client.AddHeaders([]RequestHeader{{"Fuga", "test2"}})
-		res, err := client.GetJson(httpBinOrgGet)
+		res, err := client.Get(httpBinOrgGet)
 		a.NoError(err)
 		a.NotNil(res)
 
-		actual := res.v.(*TestHttpBinOrgGet)
+		actual := res.Data.(*TestHttpBinOrgGet)
 		a.Equal(fmt.Sprintf("%s?test=abcd", url), actual.Url)
 		a.Equal("abcd", actual.Args.Test)
 		a.Equal("test", actual.Headers.Hoge)
