@@ -41,3 +41,23 @@ func (ps *PostgreSql) Create(value interface{}) error {
 
 	return nil
 }
+
+func (ps *PostgreSql) Get(value interface{}, query interface{}, args ...interface{}) error {
+	resultTx := ps.db.Debug().Where(query, args...).First(value)
+	if resultTx.Error != nil {
+		return resultTx.Error
+	}
+
+	return nil
+}
+
+func (ps *PostgreSql) Truncate(tables []string) error {
+	for _, table := range tables {
+		resultTx := ps.db.Debug().Exec(fmt.Sprintf("DELETE FROM %s;", table))
+		if resultTx.Error != nil {
+			return resultTx.Error
+		}
+	}
+
+	return nil
+}

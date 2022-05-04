@@ -19,7 +19,7 @@ func NewArchiveVideoRepository(conn *postgresql.PostgreSql) repository.ArchiveVi
 	}
 }
 
-func (repository *archiveVideoRepository) Create(ctx context.Context, in *input.CreateArchiveVideoInput) error {
+func (repository *archiveVideoRepository) Create(ctx context.Context, in *input.ArchiveVideoInput) error {
 	err := repository.conn.Create(in)
 	if err != nil {
 		return err
@@ -27,13 +27,44 @@ func (repository *archiveVideoRepository) Create(ctx context.Context, in *input.
 
 	return nil
 }
+func (repository *archiveVideoRepository) GetByBroadcastId(ctx context.Context, broadcastId *entity.VideoBroadcastId) (*entity.ArchiveVideo, error) {
+	achiveVideoInput := &input.ArchiveVideoInput{}
+	err := repository.conn.Get(achiveVideoInput, "broadcast_id = ?", broadcastId)
+	if err != nil {
+		return nil, err
+	}
 
-func (repository *archiveVideoRepository) Get(ctx context.Context) (*entity.ArchiveVideo, error) {
-	// TODO: 開発する
-	return nil, nil
+	return repository.scan(achiveVideoInput), nil
 }
 
 func (repository *archiveVideoRepository) List(ctx context.Context) ([]*entity.ArchiveVideo, error) {
 	// TODO: 開発する
 	return nil, nil
+}
+
+func (repository *archiveVideoRepository) scan(in *input.ArchiveVideoInput) *entity.ArchiveVideo {
+
+	videoId := entity.NewVideoId(in.Id)
+	broadcastId := entity.NewVideoBroadcastId(in.BroadcastId)
+	videoTitle := entity.NewVideoTitle(in.Title)
+	videoUrl := entity.NewVideoUrl(in.Url)
+	videoStremer := entity.NewVideoStremer(in.Stremer)
+	thumbnailImage := entity.NewThumbnailImage(in.ThumbnailImage)
+	startedDatetime := entity.NewStartedDatetimeFromTime(in.StartedDatetime)
+
+	var endedDatetime *entity.EndedDatetime
+	if in.EndedDatetime != nil {
+		endedDatetime = entity.NewEndedDatetimeFromTime(&in.EndedDatetime.Time)
+	}
+
+	return entity.NewArchiveVideo(
+		videoId,
+		broadcastId,
+		videoTitle,
+		videoUrl,
+		videoStremer,
+		thumbnailImage,
+		startedDatetime,
+		endedDatetime,
+	)
 }

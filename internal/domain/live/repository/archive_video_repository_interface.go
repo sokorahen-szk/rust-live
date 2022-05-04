@@ -8,7 +8,7 @@ import (
 )
 
 type ArchiveVideoRepositoryInterface interface {
-	Get(context.Context) (*entity.ArchiveVideo, error)
+	GetByBroadcastId(context.Context, *entity.VideoBroadcastId) (*entity.ArchiveVideo, error)
 	List(context.Context) ([]*entity.ArchiveVideo, error)
-	Create(context.Context, *input.CreateArchiveVideoInput) error
+	Create(context.Context, *input.ArchiveVideoInput) error
 }
