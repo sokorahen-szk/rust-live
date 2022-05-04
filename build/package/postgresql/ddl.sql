@@ -8,7 +8,5 @@ CREATE TABLE archive_videos (
     thumbnail_image TEXT,
     started_datetime TIMESTAMP NOT NULL,
     ended_datetime TIMESTAMP,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP,
-    deleted_at TIMESTAMP
+    UNIQUE(broadcast_id)
 );
