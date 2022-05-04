@@ -2,6 +2,7 @@ package common
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -12,4 +13,5 @@ func Test_NewDatetime(t *testing.T) {
 	d := NewDatetime("2022-04-01T00:00:00Z")
 	a.Equal("2022-04-01T00:00:00Z", d.RFC3339())
 	a.Equal("2022-04-01", d.YYYYMMDD())
+	a.IsType(&time.Time{}, d.Time())
 }

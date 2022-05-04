@@ -32,6 +32,7 @@ func (repository mockLiveVideoRepository) liveVideos(searchKeywords string) []*e
 		videoTitle := entity.NewVideoTitle(fmt.Sprintf("test%d", i))
 		videoUrl := entity.NewVideoUrl("https://example.com")
 		videoStremer := entity.NewVideoStremer(fmt.Sprintf("stremer%d", i))
+		videoBroadcastId := entity.NewVideoBroadcastId(fmt.Sprintf("gefefgh%d", i))
 
 		if !strings.Contains(videoTitle.String(), searchKeywords) &&
 			!strings.Contains(videoStremer.String(), searchKeywords) {
@@ -40,6 +41,7 @@ func (repository mockLiveVideoRepository) liveVideos(searchKeywords string) []*e
 
 		liveVideo := entity.NewLiveVideo(
 			entity.NewVideoId(i),
+			videoBroadcastId,
 			videoTitle,
 			videoUrl,
 			videoStremer,

@@ -26,3 +26,7 @@ func (ins *Datetime) RFC3339() string {
 func (ins *Datetime) YYYYMMDD() string {
 	return ins.time.Format(DateFormat)
 }
+
+func (ins *Datetime) Time() *time.Time {
+	return ins.time
+}

@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"os"
+
 	"github.com/sirupsen/logrus"
 )
 
@@ -11,16 +13,23 @@ type logFormat struct {
 }
 
 func init() {
-	log = NewLogger()
+	log = NewLogger(os.Getenv("APP_LOG_LEVEL"))
 }
 
-func NewLogger() *logrus.Logger {
+func NewLogger(logLevel string) *logrus.Logger {
 	logger := logrus.New()
 
 	formatter := logFormat{}
 	formatter.TimestampFormat = "2006-01-02 15:04:05"
 
 	logger.SetFormatter(&logrus.JSONFormatter{})
+
+	lvl, err := logrus.ParseLevel(logLevel)
+	if err != nil {
+		panic(err)
+	}
+
+	logger.SetLevel(lvl)
 
 	return logger
 }

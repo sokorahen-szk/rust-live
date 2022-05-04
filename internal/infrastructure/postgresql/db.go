@@ -33,8 +33,11 @@ func NewPostgreSQL(c *cfg.Config) *PostgreSql {
 	}
 }
 
-func (ps *PostgreSql) Create(value interface{}) {
-	ps.db.ToSQL(func(tx *gorm.DB) *gorm.DB {
-		return ps.db.Create(value)
-	})
+func (ps *PostgreSql) Create(value interface{}) error {
+	resultTx := ps.db.Debug().Create(value)
+	if resultTx.Error != nil {
+		return resultTx.Error
+	}
+
+	return nil
 }
