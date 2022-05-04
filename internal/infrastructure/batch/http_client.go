@@ -1,4 +1,4 @@
-package api
+package batch
 
 import (
 	"encoding/json"
@@ -17,21 +17,21 @@ type HttpClient struct {
 }
 
 type RequestHeader struct {
-	key   string
-	value string
+	Key   string
+	Value string
 }
 
 type RequestParam struct {
-	key   string
-	value string
+	Key   string
+	Value string
 }
 
-type GetJsonResponse struct {
-	v interface{}
+type GetResponse struct {
+	Data interface{}
 }
 
-func NewHttpClient(method string, url string, body io.Reader) *HttpClient {
-	req, err := http.NewRequest(method, url, body)
+func NewHttpClient(method string, body io.Reader) *HttpClient {
+	req, err := http.NewRequest(method, "", body)
 	if err != nil {
 		panic(err)
 	}
@@ -47,17 +47,28 @@ func NewHttpClient(method string, url string, body io.Reader) *HttpClient {
 
 func (r *HttpClient) AddHeaders(headers []RequestHeader) {
 	for _, header := range headers {
-		r.req.Header.Add(header.key, header.value)
+		r.req.Header.Add(header.Key, header.Value)
 	}
 }
 
 func (r *HttpClient) AddParams(params []RequestParam) {
 	for _, param := range params {
-		r.params.Add(param.key, param.value)
+		r.params.Add(param.Key, param.Value)
 	}
 }
 
-func (r *HttpClient) GetJson(v interface{}) (*GetJsonResponse, error) {
+func (r *HttpClient) DeleteParams(params []RequestParam) {
+	for _, key := range r.mapKey(params) {
+		r.params.Del(key)
+	}
+}
+
+func (r *HttpClient) Get(reqUrl string, v interface{}) (*GetResponse, error) {
+	changedUrl, err := url.Parse(reqUrl)
+	if err != nil {
+		return nil, err
+	}
+	r.req.URL = changedUrl
 	r.req.URL.RawQuery = r.params.Encode()
 
 	client := r.createClient()
@@ -75,10 +86,10 @@ func (r *HttpClient) GetJson(v interface{}) (*GetJsonResponse, error) {
 
 	err = json.Unmarshal([]byte(body), v)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
-	response := &GetJsonResponse{v: v}
+	response := &GetResponse{Data: v}
 	return response, nil
 }
 
@@ -86,4 +97,12 @@ func (r *HttpClient) createClient() *http.Client {
 	return &http.Client{
 		Timeout: time.Duration(httpClientTimeout * time.Second),
 	}
+}
+
+func (r *HttpClient) mapKey(params []RequestParam) []string {
+	keys := make([]string, 0)
+	for _, param := range params {
+		keys = append(keys, param.Key)
+	}
+	return keys
 }
