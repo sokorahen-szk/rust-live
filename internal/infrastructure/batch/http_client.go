@@ -30,8 +30,8 @@ type GetResponse struct {
 	Data interface{}
 }
 
-func NewHttpClient(method string, url string, body io.Reader) *HttpClient {
-	req, err := http.NewRequest(method, url, body)
+func NewHttpClient(method string, body io.Reader) *HttpClient {
+	req, err := http.NewRequest(method, "", body)
 	if err != nil {
 		panic(err)
 	}
@@ -63,7 +63,12 @@ func (r *HttpClient) DeleteParams(params []RequestParam) {
 	}
 }
 
-func (r *HttpClient) Get(v interface{}) (*GetResponse, error) {
+func (r *HttpClient) Get(reqUrl string, v interface{}) (*GetResponse, error) {
+	changedUrl, err := url.Parse(reqUrl)
+	if err != nil {
+		return nil, err
+	}
+	r.req.URL = changedUrl
 	r.req.URL.RawQuery = r.params.Encode()
 
 	client := r.createClient()

@@ -29,10 +29,10 @@ func Test_NewHttpClient_Get(t *testing.T) {
 	url := "https://httpbin.org/get"
 
 	t.Run("Getパラメータなし", func(t *testing.T) {
-		client := NewHttpClient(http.MethodGet, url, nil)
+		client := NewHttpClient(http.MethodGet, nil)
 		httpBinOrgGet := &TestHttpBinOrgGet{}
 
-		res, err := client.Get(httpBinOrgGet)
+		res, err := client.Get(url, httpBinOrgGet)
 		a.NoError(err)
 		a.NotNil(res)
 
@@ -43,11 +43,11 @@ func Test_NewHttpClient_Get(t *testing.T) {
 		a.Equal("", actual.Headers.Fuga)
 	})
 	t.Run("Getパラメータあり", func(t *testing.T) {
-		client := NewHttpClient(http.MethodGet, url, nil)
+		client := NewHttpClient(http.MethodGet, nil)
 		httpBinOrgGet := &TestHttpBinOrgGet{}
 
 		client.AddParams([]RequestParam{{"test", "abcd"}})
-		res, err := client.Get(httpBinOrgGet)
+		res, err := client.Get(url, httpBinOrgGet)
 		a.NoError(err)
 		a.NotNil(res)
 
@@ -58,13 +58,13 @@ func Test_NewHttpClient_Get(t *testing.T) {
 		a.Equal("", actual.Headers.Fuga)
 	})
 	t.Run("Getパラメータあり, ヘッダー追加あり", func(t *testing.T) {
-		client := NewHttpClient(http.MethodGet, url, nil)
+		client := NewHttpClient(http.MethodGet, nil)
 		httpBinOrgGet := &TestHttpBinOrgGet{}
 
 		client.AddParams([]RequestParam{{"test", "abcd"}})
 		client.AddHeaders([]RequestHeader{{"Hoge", "test"}})
 		client.AddHeaders([]RequestHeader{{"Fuga", "test2"}})
-		res, err := client.Get(httpBinOrgGet)
+		res, err := client.Get(url, httpBinOrgGet)
 		a.NoError(err)
 		a.NotNil(res)
 

@@ -7,7 +7,11 @@ import (
 	"github.com/sokorahen-szk/rust-live/internal/infrastructure/batch"
 )
 
-const RustGameId string = "263490"
+const (
+	RustGameId        string = "263490"
+	ListBroadcastUrl  string = "https://api.twitch.tv/helix/streams"
+	GetVideoByUserUrl string = "https://api.twitch.tv/helix/videos"
+)
 
 type ListBroadcastResponse struct {
 	List []ListBroadcast `json:"data"`
@@ -24,11 +28,11 @@ type ListBroadcast struct {
 	ThumbnailUrl string `json:"thumbnail_url"`
 }
 
-type GetVideoByUserIdResponse struct {
-	Data ListBroadcast `json:"data"`
+type ListVideoByUserIdResponse struct {
+	List []ListVideoByUserId `json:"data"`
 }
 
-type GetVideoByUserId struct {
+type ListVideoByUserId struct {
 	Id       string `json:"id"`
 	StreamId string `json:"stream_id"`
 	UserId   string `json:"user_id"`
@@ -57,9 +61,8 @@ func NewTwitchApiClient(httpClient *batch.HttpClient, config *cfg.Config) *twitc
 }
 
 func (api *twitchApiClient) ListBroadcast(params []batch.RequestParam) (*ListBroadcastResponse, error) {
-
 	api.httpClient.AddParams(params)
-	httpClientGetResponse, err := api.httpClient.Get(&ListBroadcastResponse{})
+	httpClientGetResponse, err := api.httpClient.Get(ListBroadcastUrl, &ListBroadcastResponse{})
 	if err != nil {
 		return nil, err
 	}
@@ -70,8 +73,20 @@ func (api *twitchApiClient) ListBroadcast(params []batch.RequestParam) (*ListBro
 	return ListBroadcastResponse, nil
 }
 
-func (api *twitchApiClient) GetVideoByUserId(userId string) (*ListBroadcastResponse, error) {
-	return nil, nil
+func (api *twitchApiClient) ListVideoByUserId(userId string, params []batch.RequestParam) (*ListVideoByUserIdResponse, error) {
+	params = append(params, []batch.RequestParam{
+		{Key: "user_id", Value: userId},
+	}...)
+	api.httpClient.AddParams(params)
+	httpClientGetResponse, err := api.httpClient.Get(GetVideoByUserUrl, &ListVideoByUserIdResponse{})
+	if err != nil {
+		return nil, err
+	}
+
+	api.httpClient.DeleteParams(params)
+
+	listVideoByUserIdResponse := httpClientGetResponse.Data.(*ListVideoByUserIdResponse)
+	return listVideoByUserIdResponse, nil
 }
 
 func (api *twitchApiClient) setAuth() {
