@@ -18,7 +18,7 @@ type ListBroadcastResponse struct {
 }
 
 type ListBroadcast struct {
-	Id           string `json:"id"`
+	StreamId     string `json:"id"`
 	UserId       string `json:"user_id"`
 	UserLogin    string `json:"user_login"`
 	UserName     string `json:"user_name"`

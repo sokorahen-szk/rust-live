@@ -9,7 +9,7 @@ type ArchiveVideoInput struct {
 	Id              int    `gorm:"primaryKey"`
 	BroadcastId     string `gorm:"index"`
 	Title           string
-	Url             string
+	Url             *sql.NullString
 	Stremer         string
 	ThumbnailImage  string
 	StartedDatetime *time.Time

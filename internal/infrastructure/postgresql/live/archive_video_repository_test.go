@@ -2,6 +2,7 @@ package live
 
 import (
 	"context"
+	"database/sql"
 	"testing"
 
 	cfg "github.com/sokorahen-szk/rust-live/config"
@@ -23,7 +24,7 @@ func Test_ArchiveVideoRepository_Create(t *testing.T) {
 	in := &input.ArchiveVideoInput{
 		BroadcastId:     "39300467239",
 		Title:           "title",
-		Url:             "https://example.com/test",
+		Url:             &sql.NullString{String: "https://example.com/test", Valid: true},
 		Stremer:         "テスター",
 		ThumbnailImage:  "https://example.com/test.jpg",
 		StartedDatetime: tm.Time(),
@@ -56,13 +57,16 @@ func Test_ArchiveVideoRepository_GetByBroadcastId(t *testing.T) {
 		in := &input.ArchiveVideoInput{
 			BroadcastId:     "39300467239",
 			Title:           "title",
-			Url:             "https://example.com/test",
+			Url:             &sql.NullString{String: "https://example.com/test", Valid: true},
 			Stremer:         "テスター",
 			ThumbnailImage:  "https://example.com/test.jpg",
 			StartedDatetime: datetime.Time(),
 		}
 		err := repository.Create(ctx, in)
 		a.NoError(err)
+		// GORMの機能により、構造体のポインタを渡しているため、repository.Create
+		// の中でIdがセットされて返される。
+		a.NotNil(in.Id)
 
 		actual, err := repository.GetByBroadcastId(ctx, searchBroadcastId)
 		a.NoError(err)
