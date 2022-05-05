@@ -62,5 +62,8 @@ func (ins ArchiveVideo) GetStartedDatetime() *StartedDatetime {
 }
 
 func (ins ArchiveVideo) GetEndedDatetime() *EndedDatetime {
+	if ins.EndedDatetime == nil {
+		return nil
+	}
 	return ins.EndedDatetime
 }
