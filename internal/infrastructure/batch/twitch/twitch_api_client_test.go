@@ -65,11 +65,11 @@ func Test_ListVideoByUserId(t *testing.T) {
 		a.Len(ListVideoByUserId.List, 1)
 
 		actual := ListVideoByUserId.List[0]
-		a.Equal("1473824992", actual.Id)
-		a.Equal("39300467239", actual.StreamId)
 		a.Equal("186620619", actual.UserId)
 		a.Equal("ぺけぽこ", actual.UserName)
 		a.NotNil(actual.Title)
 		a.NotNil(actual.Viewable)
+		a.NotNil(actual.Id)
+		a.NotNil(actual.StreamId)
 	})
 }
