@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/sokorahen-szk/rust-live/internal/domain/live/repository"
 	usecaseBatch "github.com/sokorahen-szk/rust-live/internal/usecase/batch"
 
 	cfg "github.com/sokorahen-szk/rust-live/config"
@@ -21,15 +20,9 @@ func NewInjectFetchLiveVideosUsecase(ctx context.Context) usecaseBatch.FetchLive
 	redis := redis.NewRedis(ctx, config)
 	postgresql := postgresql.NewPostgreSQL(config)
 
-	var liveVideoRepository repository.LiveVideoRepositoryInterface
-	if config.IsProd() {
-		liveVideoRepository = redisLive.NewLiveVideoRepository(redis)
-	} else {
-		liveVideoRepository = redisLive.NewMockLiveVideoRepository()
-	}
-
 	client := batch.NewHttpClient(http.MethodGet, nil)
 	archiveVideoRepository := postgresqlLive.NewArchiveVideoRepository(postgresql)
+	liveVideoRepository := redisLive.NewLiveVideoRepository(redis)
 	twitchApiClient := twitch.NewTwitchApiClient(client, config)
 
 	return NewFetchLiveVideosUsecase(

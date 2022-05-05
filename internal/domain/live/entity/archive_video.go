@@ -46,6 +46,9 @@ func (ins ArchiveVideo) GetTitle() *VideoTitle {
 }
 
 func (ins ArchiveVideo) GetUrl() *VideoUrl {
+	if ins.Url == nil {
+		return nil
+	}
 	return ins.Url
 }
 

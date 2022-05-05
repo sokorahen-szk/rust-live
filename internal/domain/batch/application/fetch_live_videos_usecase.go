@@ -64,7 +64,8 @@ func (usecase fetchLiveVideosUsecase) Handle(ctx context.Context) error {
 		viewer := entity.NewVideoViewer(broadcastData.ViewerCount)
 		thumbnailImage := entity.NewThumbnailImage(broadcastData.ThumbnailUrl)
 		startedDatetime := entity.NewStartedDatetime(broadcastData.StartedAt)
-		elapsedTimes := entity.NewElapsedTimes(1) // とりあえず１を入れてる
+		// とりあえず１を入れてる. 後ほど現在時刻とstartedDatetimeの差分を出す
+		elapsedTimes := entity.NewElapsedTimes(1)
 
 		in := &input.ArchiveVideoInput{
 			BroadcastId:     broadcastId.String(),
