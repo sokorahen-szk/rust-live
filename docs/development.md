@@ -13,12 +13,12 @@ make test
 
 ```shell
 cd /path/to/project
-docker exec app gotestsum ./target/unit/test/directory
+docker exec app gotestsum -- -count=1 ./target/unit/test/directory
 ```
 
 - 特定のメソッド（頭に Test とついているメソッドをテスト実施する）
 
 ```shell
 cd /path/to/project
-docker exec app gotestsum ./target/unit/test/directory -run {メソッド名}
+docker exec app gotestsum -- -count=1 ./target/unit/test/directory -run {メソッド名}
 ```

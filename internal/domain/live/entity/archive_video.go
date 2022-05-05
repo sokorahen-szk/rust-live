@@ -1,17 +1,19 @@
 package entity
 
 type ArchiveVideo struct {
-	id              *VideoId
-	title           *VideoTitle
-	url             *VideoUrl
-	stremer         *VideoStremer
-	thumbnailImage  *ThumbnailImage
-	startedDatetime *StartedDatetime
-	endedDatetime   *EndedDatetime
+	Id              *VideoId
+	BroadcastId     *VideoBroadcastId
+	Title           *VideoTitle
+	Url             *VideoUrl
+	Stremer         *VideoStremer
+	ThumbnailImage  *ThumbnailImage
+	StartedDatetime *StartedDatetime
+	EndedDatetime   *EndedDatetime
 }
 
 func NewArchiveVideo(
 	videoId *VideoId,
+	broadcastId *VideoBroadcastId,
 	videoTitle *VideoTitle,
 	videoUrl *VideoUrl,
 	videoStremer *VideoStremer,
@@ -20,40 +22,48 @@ func NewArchiveVideo(
 	endedDatetime *EndedDatetime,
 ) *ArchiveVideo {
 	return &ArchiveVideo{
-		id:              videoId,
-		title:           videoTitle,
-		url:             videoUrl,
-		stremer:         videoStremer,
-		thumbnailImage:  thumbnailImage,
-		startedDatetime: startedDatetime,
-		endedDatetime:   endedDatetime,
+		Id:              videoId,
+		BroadcastId:     broadcastId,
+		Title:           videoTitle,
+		Url:             videoUrl,
+		Stremer:         videoStremer,
+		ThumbnailImage:  thumbnailImage,
+		StartedDatetime: startedDatetime,
+		EndedDatetime:   endedDatetime,
 	}
 }
 
-func (ins ArchiveVideo) Id() *VideoId {
-	return ins.id
+func (ins ArchiveVideo) GetId() *VideoId {
+	return ins.Id
 }
 
-func (ins ArchiveVideo) Title() *VideoTitle {
-	return ins.title
+func (ins ArchiveVideo) GetBroadcastId() *VideoBroadcastId {
+	return ins.BroadcastId
 }
 
-func (ins ArchiveVideo) Url() *VideoUrl {
-	return ins.url
+func (ins ArchiveVideo) GetTitle() *VideoTitle {
+	return ins.Title
 }
 
-func (ins ArchiveVideo) Stremer() *VideoStremer {
-	return ins.stremer
+func (ins ArchiveVideo) GetUrl() *VideoUrl {
+	return ins.Url
 }
 
-func (ins ArchiveVideo) ThumbnailImage() *ThumbnailImage {
-	return ins.thumbnailImage
+func (ins ArchiveVideo) GetStremer() *VideoStremer {
+	return ins.Stremer
 }
 
-func (ins ArchiveVideo) StartedDatetime() *StartedDatetime {
-	return ins.startedDatetime
+func (ins ArchiveVideo) GetThumbnailImage() *ThumbnailImage {
+	return ins.ThumbnailImage
 }
 
-func (ins ArchiveVideo) EndedDatetime() *EndedDatetime {
-	return ins.endedDatetime
+func (ins ArchiveVideo) GetStartedDatetime() *StartedDatetime {
+	return ins.StartedDatetime
+}
+
+func (ins ArchiveVideo) GetEndedDatetime() *EndedDatetime {
+	if ins.EndedDatetime == nil {
+		return nil
+	}
+	return ins.EndedDatetime
 }

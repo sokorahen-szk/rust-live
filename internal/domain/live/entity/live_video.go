@@ -1,18 +1,20 @@
 package entity
 
 type LiveVideo struct {
-	Id              *VideoId         `json:"id"`
-	Title           *VideoTitle      `json:"title"`
-	Url             *VideoUrl        `json:"url"`
-	Stremer         *VideoStremer    `json:"stremer"`
-	Viewer          *VideoViewer     `json:"viewer"`
-	ThumbnailImage  *ThumbnailImage  `json:"thumbnail_image"`
-	StartedDatetime *StartedDatetime `json:"started_datetime"`
-	ElapsedTimes    *ElapsedTimes    `json:"ended_datetime"`
+	Id              *VideoId          `json:"id"`
+	BroadcastId     *VideoBroadcastId `json:"broadcast_id"`
+	Title           *VideoTitle       `json:"title"`
+	Url             *VideoUrl         `json:"url"`
+	Stremer         *VideoStremer     `json:"stremer"`
+	Viewer          *VideoViewer      `json:"viewer"`
+	ThumbnailImage  *ThumbnailImage   `json:"thumbnail_image"`
+	StartedDatetime *StartedDatetime  `json:"started_datetime"`
+	ElapsedTimes    *ElapsedTimes     `json:"ended_datetime"`
 }
 
 func NewLiveVideo(
 	videoId *VideoId,
+	broadcastId *VideoBroadcastId,
 	videoTitle *VideoTitle,
 	videoUrl *VideoUrl,
 	videoStremer *VideoStremer,
@@ -23,6 +25,7 @@ func NewLiveVideo(
 ) *LiveVideo {
 	return &LiveVideo{
 		Id:              videoId,
+		BroadcastId:     broadcastId,
 		Title:           videoTitle,
 		Url:             videoUrl,
 		Stremer:         videoStremer,
@@ -35,6 +38,10 @@ func NewLiveVideo(
 
 func (ins LiveVideo) GetId() *VideoId {
 	return ins.Id
+}
+
+func (ins LiveVideo) GetBroadcastId() *VideoBroadcastId {
+	return ins.BroadcastId
 }
 
 func (ins LiveVideo) GetTitle() *VideoTitle {

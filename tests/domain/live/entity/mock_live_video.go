@@ -8,6 +8,7 @@ import (
 
 func NewMockLiveVideo(i int) *entity.LiveVideo {
 	videoId := entity.NewVideoId(i)
+	videoBroadcastId := entity.NewVideoBroadcastId(fmt.Sprintf("gefefgh%d", i))
 	videoTitle := entity.NewVideoTitle(fmt.Sprintf("title_%d", i))
 	videoUrl := entity.NewVideoUrl(fmt.Sprintf("https://example.com/%d", i))
 	videoStremer := entity.NewVideoStremer(fmt.Sprintf("太郎%d", i))
@@ -18,6 +19,7 @@ func NewMockLiveVideo(i int) *entity.LiveVideo {
 
 	return entity.NewLiveVideo(
 		videoId,
+		videoBroadcastId,
 		videoTitle,
 		videoUrl,
 		videoStremer,
