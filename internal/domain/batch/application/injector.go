@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"net/http"
+	"time"
 
 	usecaseBatch "github.com/sokorahen-szk/rust-live/internal/usecase/batch"
 
@@ -29,5 +30,6 @@ func NewInjectFetchLiveVideosUsecase(ctx context.Context) usecaseBatch.FetchLive
 		liveVideoRepository,
 		archiveVideoRepository,
 		twitchApiClient,
+		time.Now,
 	)
 }

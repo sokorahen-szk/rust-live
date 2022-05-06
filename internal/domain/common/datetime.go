@@ -51,3 +51,14 @@ func (ins *Datetime) Timestamp() string {
 func (ins *Datetime) Time() *time.Time {
 	return ins.time
 }
+
+func (ins *Datetime) TimeFunc() func() time.Time {
+	return func() time.Time {
+		return *ins.Time()
+	}
+}
+
+func (ins *Datetime) DiffSeconds(tm *time.Time) int {
+	diff := ins.Time().Sub(*tm)
+	return int(diff.Seconds())
+}

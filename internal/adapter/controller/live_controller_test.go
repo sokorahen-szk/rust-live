@@ -9,6 +9,7 @@ import (
 )
 
 func Test_LiveController_ListLiveVideos(t *testing.T) {
+	t.Skip()
 	a := assert.New(t)
 	ctx := context.Background()
 

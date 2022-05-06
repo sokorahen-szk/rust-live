@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
+	"github.com/sokorahen-szk/rust-live/internal/domain/common"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/input"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/repository"
@@ -18,21 +20,27 @@ type fetchLiveVideosUsecase struct {
 	liveVideoRepository    repository.LiveVideoRepositoryInterface
 	archiveVideoRepository repository.ArchiveVideoRepositoryInterface
 	twitchApiClient        twitch.TwitchApiClientInterface
+	now                    func() time.Time
 }
 
 func NewFetchLiveVideosUsecase(
 	liveVideoRepository repository.LiveVideoRepositoryInterface,
 	archiveVideoRepository repository.ArchiveVideoRepositoryInterface,
 	twitchApiClient twitch.TwitchApiClientInterface,
+	now func() time.Time,
 ) usecaseBatch.FetchLiveVideosUsecaseInterface {
 	return fetchLiveVideosUsecase{
 		liveVideoRepository:    liveVideoRepository,
 		archiveVideoRepository: archiveVideoRepository,
 		twitchApiClient:        twitchApiClient,
+		now:                    now,
 	}
 }
 
 func (usecase fetchLiveVideosUsecase) Handle(ctx context.Context) error {
+	now := usecase.now()
+	currentDatetime := common.NewDatetimeFromTime(&now)
+
 	ListBroadcastResponse, err := usecase.listTwitchBroadcast()
 	if err != nil {
 		return err
@@ -64,8 +72,7 @@ func (usecase fetchLiveVideosUsecase) Handle(ctx context.Context) error {
 		viewer := entity.NewVideoViewer(broadcastData.ViewerCount)
 		thumbnailImage := entity.NewThumbnailImage(broadcastData.ThumbnailUrl)
 		startedDatetime := entity.NewStartedDatetime(broadcastData.StartedAt)
-		// とりあえず１を入れてる. 後ほど現在時刻とstartedDatetimeの差分を出す
-		elapsedTimes := entity.NewElapsedTimes(1)
+		elapsedTimes := entity.NewElapsedTimes(currentDatetime.DiffSeconds(startedDatetime.Time()))
 
 		in := &input.ArchiveVideoInput{
 			BroadcastId:     broadcastId.String(),
