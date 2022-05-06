@@ -20,12 +20,15 @@ func Test_ArchiveVideoRepository_Create(t *testing.T) {
 	postgresql := postgresql.NewPostgreSQL(cfg.NewConfig())
 	repository := NewArchiveVideoRepository(postgresql)
 
+	platform := entity.NewPlatform(entity.PlatformTwitch)
+
 	tm := common.NewDatetime("2022-02-02T14:00:00Z")
 	in := &input.ArchiveVideoInput{
 		BroadcastId:     "39300467239",
 		Title:           "title",
 		Url:             &sql.NullString{String: "https://example.com/test", Valid: true},
 		Stremer:         "テスター",
+		Platform:        platform.Int(),
 		ThumbnailImage:  "https://example.com/test.jpg",
 		StartedDatetime: tm.Time(),
 	}
@@ -48,6 +51,8 @@ func Test_ArchiveVideoRepository_GetByBroadcastId(t *testing.T) {
 	postgresql := postgresql.NewPostgreSQL(cfg.NewConfig())
 	repository := NewArchiveVideoRepository(postgresql)
 
+	platform := entity.NewPlatform(entity.PlatformTwitch)
+
 	t.Run("BroadcastIdでデータが見つかる場合、データが返されること", func(t *testing.T) {
 		postgresql.Truncate([]string{"archive_videos"})
 
@@ -59,6 +64,7 @@ func Test_ArchiveVideoRepository_GetByBroadcastId(t *testing.T) {
 			Title:           "title",
 			Url:             &sql.NullString{String: "https://example.com/test", Valid: true},
 			Stremer:         "テスター",
+			Platform:        platform.Int(),
 			ThumbnailImage:  "https://example.com/test.jpg",
 			StartedDatetime: datetime.Time(),
 		}
@@ -75,6 +81,7 @@ func Test_ArchiveVideoRepository_GetByBroadcastId(t *testing.T) {
 		a.Equal("title", actual.GetTitle().String())
 		a.Equal("https://example.com/test", actual.GetUrl().String())
 		a.Equal("テスター", actual.GetStremer().String())
+		a.Equal(1, platform.Int())
 		a.Equal("https://example.com/test.jpg", actual.GetThumbnailImage().String())
 		a.Equal(datetime.RFC3339(), actual.GetStartedDatetime().RFC3339())
 		a.Nil(actual.GetEndedDatetime())

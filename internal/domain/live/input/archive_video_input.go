@@ -11,6 +11,7 @@ type ArchiveVideoInput struct {
 	Title           string
 	Url             *sql.NullString
 	Stremer         string
+	Platform        int
 	ThumbnailImage  string
 	StartedDatetime *time.Time
 	EndedDatetime   *sql.NullTime

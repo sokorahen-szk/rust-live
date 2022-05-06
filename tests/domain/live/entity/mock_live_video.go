@@ -13,6 +13,7 @@ func NewMockLiveVideo(i int) *entity.LiveVideo {
 	videoUrl := entity.NewVideoUrl(fmt.Sprintf("https://example.com/%d", i))
 	videoStremer := entity.NewVideoStremer(fmt.Sprintf("太郎%d", i))
 	videoViewer := entity.NewVideoViewer(10)
+	platform := entity.NewPlatform(entity.PlatformTwitch)
 	thumbnailImage := entity.NewThumbnailImage(fmt.Sprintf("https://example.com/test%d.jpg", i))
 	startedDatetime := entity.NewStartedDatetime("2022-12-31T15:00:00Z")
 	elapsedTimes := entity.NewElapsedTimes(10000)
@@ -24,6 +25,7 @@ func NewMockLiveVideo(i int) *entity.LiveVideo {
 		videoUrl,
 		videoStremer,
 		videoViewer,
+		platform,
 		thumbnailImage,
 		startedDatetime,
 		elapsedTimes,

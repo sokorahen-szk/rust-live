@@ -117,6 +117,7 @@ func (usecase fetchLiveVideosUsecase) fetchTwitchApiDataToLocalStorage(ctx conte
 		stremer := entity.NewVideoStremer(broadcastData.UserName)
 		title := entity.NewVideoTitle(broadcastData.Title)
 		viewer := entity.NewVideoViewer(broadcastData.ViewerCount)
+		platform := entity.NewPlatform(entity.PlatformTwitch)
 		thumbnailImage := entity.NewThumbnailImage(broadcastData.ThumbnailUrl)
 		startedDatetime := entity.NewStartedDatetime(broadcastData.StartedAt)
 		elapsedTimes := entity.NewElapsedTimes(currentDatetime.DiffSeconds(startedDatetime.Time()))
@@ -126,6 +127,7 @@ func (usecase fetchLiveVideosUsecase) fetchTwitchApiDataToLocalStorage(ctx conte
 			Title:           title.String(),
 			Url:             archiveVideoUrl,
 			Stremer:         stremer.String(),
+			Platform:        platform.Int(),
 			ThumbnailImage:  thumbnailImage.String(),
 			StartedDatetime: startedDatetime.Time(),
 		}
@@ -141,6 +143,7 @@ func (usecase fetchLiveVideosUsecase) fetchTwitchApiDataToLocalStorage(ctx conte
 			liveVideoUrl,
 			stremer,
 			viewer,
+			platform,
 			thumbnailImage,
 			startedDatetime,
 			elapsedTimes,

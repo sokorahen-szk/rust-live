@@ -5,6 +5,7 @@ CREATE TABLE archive_videos (
     title VARCHAR(255) NOT NULL,
     url TEXT,
     stremer VARCHAR(50) NOT NULL,
+    platform SMALLINT NOT NULL,
     thumbnail_image TEXT,
     started_datetime TIMESTAMP NOT NULL,
     ended_datetime TIMESTAMP,
