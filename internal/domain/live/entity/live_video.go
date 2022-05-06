@@ -9,7 +9,7 @@ type LiveVideo struct {
 	Viewer          *VideoViewer      `json:"viewer"`
 	ThumbnailImage  *ThumbnailImage   `json:"thumbnail_image"`
 	StartedDatetime *StartedDatetime  `json:"started_datetime"`
-	ElapsedTimes    *ElapsedTimes     `json:"ended_datetime"`
+	ElapsedTimes    *ElapsedTimes     `json:"elapsed_times"`
 }
 
 func NewLiveVideo(

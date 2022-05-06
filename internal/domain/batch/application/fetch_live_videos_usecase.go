@@ -41,13 +41,60 @@ func (usecase fetchLiveVideosUsecase) Handle(ctx context.Context) error {
 	now := usecase.now()
 	currentDatetime := common.NewDatetimeFromTime(&now)
 
-	ListBroadcastResponse, err := usecase.listTwitchBroadcast()
+	liveVideos, err := usecase.fetchTwitchApiDataToLocalStorage(ctx, currentDatetime)
+	if err != nil {
+		return err
+	}
+	err = usecase.createLiveVideos(ctx, liveVideos)
 	if err != nil {
 		return err
 	}
 
-	liveVideos := make([]*entity.LiveVideo, 0)
+	return nil
+}
 
+func (usecase fetchLiveVideosUsecase) listTwitchBroadcast() (*twitch.ListBroadcastResponse, error) {
+	options := []batch.RequestParam{
+		{Key: "language", Value: "ja"},
+		{Key: "game_id", Value: twitch.RustGameId},
+		{Key: "type", Value: "live"},
+		{Key: "first", Value: "100"},
+	}
+
+	return usecase.twitchApiClient.ListBroadcast(options)
+}
+
+func (usecase fetchLiveVideosUsecase) listTwitchVideoByUserId(userId string) (*twitch.ListVideoByUserIdResponse, error) {
+	options := []batch.RequestParam{
+		{Key: "first", Value: "1"},
+	}
+
+	return usecase.twitchApiClient.ListVideoByUserId(userId, options)
+}
+
+func (usecase fetchLiveVideosUsecase) createArchiveVideos(ctx context.Context, in *input.ArchiveVideoInput) *entity.VideoId {
+	err := usecase.archiveVideoRepository.Create(ctx, in)
+	if err != nil {
+		logger.Infof("failed archiveVideoRepository.Create() err: %+v", err)
+		return nil
+	}
+
+	videoId := entity.NewVideoId(in.Id)
+	return videoId
+}
+
+func (usecase fetchLiveVideosUsecase) createLiveVideos(ctx context.Context, liveVideos []*entity.LiveVideo) error {
+	return usecase.liveVideoRepository.Create(ctx, liveVideos)
+}
+
+func (usecase fetchLiveVideosUsecase) fetchTwitchApiDataToLocalStorage(ctx context.Context,
+	currentDatetime *common.Datetime) ([]*entity.LiveVideo, error) {
+	ListBroadcastResponse, err := usecase.listTwitchBroadcast()
+	if err != nil {
+		return nil, err
+	}
+
+	liveVideos := make([]*entity.LiveVideo, 0)
 	for _, broadcastData := range ListBroadcastResponse.List {
 		listVideoByUserIdRes, err := usecase.listTwitchVideoByUserId(broadcastData.UserId)
 		if err != nil {
@@ -100,46 +147,7 @@ func (usecase fetchLiveVideosUsecase) Handle(ctx context.Context) error {
 		))
 	}
 
-	err = usecase.createLiveVideos(ctx, liveVideos)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (usecase fetchLiveVideosUsecase) listTwitchBroadcast() (*twitch.ListBroadcastResponse, error) {
-	options := []batch.RequestParam{
-		{Key: "language", Value: "ja"},
-		{Key: "game_id", Value: twitch.RustGameId},
-		{Key: "type", Value: "live"},
-		{Key: "first", Value: "100"},
-	}
-
-	return usecase.twitchApiClient.ListBroadcast(options)
-}
-
-func (usecase fetchLiveVideosUsecase) listTwitchVideoByUserId(userId string) (*twitch.ListVideoByUserIdResponse, error) {
-	options := []batch.RequestParam{
-		{Key: "first", Value: "1"},
-	}
-
-	return usecase.twitchApiClient.ListVideoByUserId(userId, options)
-}
-
-func (usecase fetchLiveVideosUsecase) createArchiveVideos(ctx context.Context, in *input.ArchiveVideoInput) *entity.VideoId {
-	err := usecase.archiveVideoRepository.Create(ctx, in)
-	if err != nil {
-		logger.Infof("failed archiveVideoRepository.Create() err: %+v", err)
-		return nil
-	}
-
-	videoId := entity.NewVideoId(in.Id)
-	return videoId
-}
-
-func (usecase fetchLiveVideosUsecase) createLiveVideos(ctx context.Context, liveVideos []*entity.LiveVideo) error {
-	return usecase.liveVideoRepository.Create(ctx, liveVideos)
+	return liveVideos, nil
 }
 
 func (usecase fetchLiveVideosUsecase) convertTwtichArchiveVideoUrl(broadcastId *entity.VideoBroadcastId) *entity.VideoUrl {
