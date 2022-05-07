@@ -9,6 +9,7 @@ import (
 	"github.com/sokorahen-szk/rust-live/internal/domain/common"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/input"
+	repoIf "github.com/sokorahen-szk/rust-live/internal/domain/live/repository"
 	"github.com/sokorahen-szk/rust-live/internal/infrastructure/postgresql"
 	"github.com/stretchr/testify/assert"
 )
@@ -94,4 +95,41 @@ func Test_ArchiveVideoRepository_GetByBroadcastId(t *testing.T) {
 		a.Error(err)
 		a.Nil(actual)
 	})
+}
+func Test_ArchiveVideoRepository_List(t *testing.T) {
+	a := assert.New(t)
+	ctx := context.Background()
+
+	postgresql := postgresql.NewPostgreSQL(cfg.NewConfig())
+	repository := NewArchiveVideoRepository(postgresql)
+
+	datetime := common.NewDatetime("2022-02-02T14:00:00Z")
+	generateArchiveVideo(t, ctx, "39300467239", datetime, repository)
+
+	list, err := repository.List(ctx)
+	a.NoError(err)
+}
+
+func generateArchiveVideo(t *testing.T, ctx context.Context, broadcastId string,
+	datetime *common.Datetime, repo repoIf.ArchiveVideoRepositoryInterface) *input.ArchiveVideoInput {
+	platform := entity.NewPlatform(entity.PlatformTwitch)
+	status := entity.NewVideoStatus(entity.VideoStatusStreaming)
+	in := &input.ArchiveVideoInput{
+		BroadcastId:     broadcastId,
+		Title:           "title",
+		Url:             &sql.NullString{String: "https://example.com/test", Valid: true},
+		Stremer:         "テスター",
+		Platform:        platform.Int(),
+		Status:          status.Int(),
+		ThumbnailImage:  "https://example.com/test.jpg",
+		StartedDatetime: datetime.Time(),
+	}
+
+	err := repo.Create(ctx, in)
+	assert.NoError(t, err)
+	// GORMの機能により、構造体のポインタを渡しているため、repository.Create
+	// の中でIdがセットされて返される。
+	assert.NotNil(t, in.Id)
+
+	return in
 }

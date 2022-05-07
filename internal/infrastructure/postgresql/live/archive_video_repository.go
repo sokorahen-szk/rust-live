@@ -38,29 +38,42 @@ func (repository *archiveVideoRepository) GetByBroadcastId(ctx context.Context, 
 }
 
 func (repository *archiveVideoRepository) List(ctx context.Context) ([]*entity.ArchiveVideo, error) {
-	// TODO: 開発する
-	return nil, nil
+	achiveVideoInputs := []*input.ArchiveVideoInput{}
+	err := repository.conn.List(achiveVideoInputs, "")
+	if err != nil {
+		return nil, err
+	}
+
+	return repository.scans(achiveVideoInputs), nil
 }
 
-func (repository *archiveVideoRepository) scan(in *input.ArchiveVideoInput) *entity.ArchiveVideo {
+func (repository *archiveVideoRepository) scans(inputs []*input.ArchiveVideoInput) []*entity.ArchiveVideo {
+	resultArchiveVideos := make([]*entity.ArchiveVideo, len(inputs))
+	for _, input := range inputs {
+		resultArchiveVideos = append(resultArchiveVideos, repository.scan(input))
+	}
 
-	videoId := entity.NewVideoId(in.Id)
-	broadcastId := entity.NewVideoBroadcastId(in.BroadcastId)
-	videoTitle := entity.NewVideoTitle(in.Title)
-	videoStremer := entity.NewVideoStremer(in.Stremer)
-	platform := entity.NewPlatformFromInt(in.Platform)
+	return resultArchiveVideos
+}
+
+func (repository *archiveVideoRepository) scan(input *input.ArchiveVideoInput) *entity.ArchiveVideo {
+	videoId := entity.NewVideoId(input.Id)
+	broadcastId := entity.NewVideoBroadcastId(input.BroadcastId)
+	videoTitle := entity.NewVideoTitle(input.Title)
+	videoStremer := entity.NewVideoStremer(input.Stremer)
+	platform := entity.NewPlatformFromInt(input.Platform)
 	status := entity.NewVideoStatus(entity.VideoStatusStreaming)
-	thumbnailImage := entity.NewThumbnailImage(in.ThumbnailImage)
-	startedDatetime := entity.NewStartedDatetimeFromTime(in.StartedDatetime)
+	thumbnailImage := entity.NewThumbnailImage(input.ThumbnailImage)
+	startedDatetime := entity.NewStartedDatetimeFromTime(input.StartedDatetime)
 
 	var endedDatetime *entity.EndedDatetime
-	if in.EndedDatetime != nil {
-		endedDatetime = entity.NewEndedDatetimeFromTime(&in.EndedDatetime.Time)
+	if input.EndedDatetime != nil {
+		endedDatetime = entity.NewEndedDatetimeFromTime(&input.EndedDatetime.Time)
 	}
 
 	var videoUrl *entity.VideoUrl
-	if in.Url != nil {
-		videoUrl = entity.NewVideoUrl(in.Url.String)
+	if input.Url != nil {
+		videoUrl = entity.NewVideoUrl(input.Url.String)
 	}
 
 	return entity.NewArchiveVideo(
