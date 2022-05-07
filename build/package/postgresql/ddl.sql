@@ -6,6 +6,7 @@ CREATE TABLE archive_videos (
     url TEXT,
     stremer VARCHAR(50) NOT NULL,
     platform SMALLINT NOT NULL,
+    status SMALLINT NOT NULL,
     thumbnail_image TEXT,
     started_datetime TIMESTAMP NOT NULL,
     ended_datetime TIMESTAMP,

@@ -49,6 +49,7 @@ func (repository *archiveVideoRepository) scan(in *input.ArchiveVideoInput) *ent
 	videoTitle := entity.NewVideoTitle(in.Title)
 	videoStremer := entity.NewVideoStremer(in.Stremer)
 	platform := entity.NewPlatformFromInt(in.Platform)
+	status := entity.NewVideoStatus(entity.VideoStatusStreaming)
 	thumbnailImage := entity.NewThumbnailImage(in.ThumbnailImage)
 	startedDatetime := entity.NewStartedDatetimeFromTime(in.StartedDatetime)
 
@@ -69,6 +70,7 @@ func (repository *archiveVideoRepository) scan(in *input.ArchiveVideoInput) *ent
 		videoUrl,
 		videoStremer,
 		platform,
+		status,
 		thumbnailImage,
 		startedDatetime,
 		endedDatetime,

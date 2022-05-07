@@ -7,6 +7,7 @@ type ArchiveVideo struct {
 	Url             *VideoUrl
 	Stremer         *VideoStremer
 	Platform        *Platform
+	Status          *VideoStatus
 	ThumbnailImage  *ThumbnailImage
 	StartedDatetime *StartedDatetime
 	EndedDatetime   *EndedDatetime
@@ -19,6 +20,7 @@ func NewArchiveVideo(
 	videoUrl *VideoUrl,
 	videoStremer *VideoStremer,
 	platform *Platform,
+	videoStatus *VideoStatus,
 	thumbnailImage *ThumbnailImage,
 	startedDatetime *StartedDatetime,
 	endedDatetime *EndedDatetime,
@@ -30,6 +32,7 @@ func NewArchiveVideo(
 		Url:             videoUrl,
 		Stremer:         videoStremer,
 		Platform:        platform,
+		Status:          videoStatus,
 		ThumbnailImage:  thumbnailImage,
 		StartedDatetime: startedDatetime,
 		EndedDatetime:   endedDatetime,
@@ -61,6 +64,10 @@ func (ins ArchiveVideo) GetStremer() *VideoStremer {
 
 func (ins ArchiveVideo) GetPlatform() *Platform {
 	return ins.Platform
+}
+
+func (ins ArchiveVideo) GetStatus() *VideoStatus {
+	return ins.Status
 }
 
 func (ins ArchiveVideo) GetThumbnailImage() *ThumbnailImage {

@@ -52,6 +52,7 @@ func Test_ArchiveVideoRepository_GetByBroadcastId(t *testing.T) {
 	repository := NewArchiveVideoRepository(postgresql)
 
 	platform := entity.NewPlatform(entity.PlatformTwitch)
+	status := entity.NewVideoStatus(entity.VideoStatusStreaming)
 
 	t.Run("BroadcastIdでデータが見つかる場合、データが返されること", func(t *testing.T) {
 		postgresql.Truncate([]string{"archive_videos"})
@@ -65,6 +66,7 @@ func Test_ArchiveVideoRepository_GetByBroadcastId(t *testing.T) {
 			Url:             &sql.NullString{String: "https://example.com/test", Valid: true},
 			Stremer:         "テスター",
 			Platform:        platform.Int(),
+			Status:          status.Int(),
 			ThumbnailImage:  "https://example.com/test.jpg",
 			StartedDatetime: datetime.Time(),
 		}
