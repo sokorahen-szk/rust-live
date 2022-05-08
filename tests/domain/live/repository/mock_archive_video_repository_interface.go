@@ -66,16 +66,30 @@ func (mr *MockArchiveVideoRepositoryInterfaceMockRecorder) GetByBroadcastId(arg0
 }
 
 // List mocks base method.
-func (m *MockArchiveVideoRepositoryInterface) List(arg0 context.Context) ([]*entity.ArchiveVideo, error) {
+func (m *MockArchiveVideoRepositoryInterface) List(arg0 context.Context, arg1 *input.ListArchiveVideoInput) ([]*entity.ArchiveVideo, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", arg0)
+	ret := m.ctrl.Call(m, "List", arg0, arg1)
 	ret0, _ := ret[0].([]*entity.ArchiveVideo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // List indicates an expected call of List.
-func (mr *MockArchiveVideoRepositoryInterfaceMockRecorder) List(arg0 interface{}) *gomock.Call {
+func (mr *MockArchiveVideoRepositoryInterfaceMockRecorder) List(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockArchiveVideoRepositoryInterface)(nil).List), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockArchiveVideoRepositoryInterface)(nil).List), arg0, arg1)
+}
+
+// Update mocks base method.
+func (m *MockArchiveVideoRepositoryInterface) Update(arg0 context.Context, arg1 *entity.VideoId, arg2 *input.UpdateArchiveVideoInput) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockArchiveVideoRepositoryInterfaceMockRecorder) Update(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockArchiveVideoRepositoryInterface)(nil).Update), arg0, arg1, arg2)
 }

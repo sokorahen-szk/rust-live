@@ -144,15 +144,43 @@ func Test_ArchiveVideoRepository_List(t *testing.T) {
 		a.NoError(err)
 		a.Len(list, 0)
 	})
+}
 
+func Test_ArchiveVideoRepository_Update(t *testing.T) {
+	a := assert.New(t)
+	ctx := context.Background()
+
+	postgresql := postgresql.NewPostgreSQL(cfg.NewConfig())
+	repository := NewArchiveVideoRepository(postgresql)
+
+	datetime := common.NewDatetime("2022-02-02T14:00:00Z")
+
+	t.Run("ステータス(Streaming = 1)をステータス(Ended=2)に変更できること", func(t *testing.T) {
+		postgresql.Truncate([]string{"archive_videos"})
+
+		archiveVideo := generateArchiveVideo(t, ctx, "39300467239", datetime, entity.VideoStatusStreaming, repository)
+		updateVideoStatus := entity.NewVideoStatus(entity.VideoStatusEnded)
+		updateInput := &input.UpdateArchiveVideoInput{
+			Status: updateVideoStatus,
+		}
+		err := repository.Update(ctx, archiveVideo.GetId(), updateInput)
+		a.NoError(err)
+	})
+	t.Run("ステータス(Streaming = 1)をステータス(Ended=1)に変更してもエラーにならないこと", func(t *testing.T) {
+		// TODO:
+	})
+	t.Run("更新するデータが見つからない場合、エラーになること", func(t *testing.T) {
+		// TODO:
+	})
 }
 
 func generateArchiveVideo(t *testing.T, ctx context.Context, broadcastId string,
-	datetime *common.Datetime, videoStatus entity.VideoStatus, repo repoIf.ArchiveVideoRepositoryInterface) *input.ArchiveVideoInput {
+	datetime *common.Datetime, videoStatus entity.VideoStatus, repo repoIf.ArchiveVideoRepositoryInterface) *entity.ArchiveVideo {
 	platform := entity.NewPlatform(entity.PlatformTwitch)
 	status := entity.NewVideoStatus(videoStatus)
+	videoBroadcastId := entity.NewVideoBroadcastId(broadcastId)
 	in := &input.ArchiveVideoInput{
-		BroadcastId:     broadcastId,
+		BroadcastId:     videoBroadcastId.String(),
 		Title:           "title",
 		Url:             &sql.NullString{String: "https://example.com/test", Valid: true},
 		Stremer:         "テスター",
@@ -168,5 +196,8 @@ func generateArchiveVideo(t *testing.T, ctx context.Context, broadcastId string,
 	// の中でIdがセットされて返される。
 	assert.NotNil(t, in.Id)
 
-	return in
+	archiveVideo, err := repo.GetByBroadcastId(ctx, videoBroadcastId)
+	assert.NoError(t, err)
+
+	return archiveVideo
 }

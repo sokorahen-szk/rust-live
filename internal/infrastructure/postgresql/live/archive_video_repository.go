@@ -58,6 +58,21 @@ func (repository *archiveVideoRepository) List(ctx context.Context, listInput *i
 	return repository.scans(achiveVideoInputs), nil
 }
 
+func (repository *archiveVideoRepository) Update(ctx context.Context, id *entity.VideoId, updateInput *input.UpdateArchiveVideoInput) error {
+	achiveVideoInput := input.ArchiveVideoInput{}
+	err := repository.conn.Get(&achiveVideoInput, "id = ?", id)
+	if err != nil {
+		return err
+	}
+
+	err = repository.conn.Update(&achiveVideoInput)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (repository *archiveVideoRepository) scans(inputs []input.ArchiveVideoInput) []*entity.ArchiveVideo {
 	resultArchiveVideos := make([]*entity.ArchiveVideo, 0)
 	for _, input := range inputs {

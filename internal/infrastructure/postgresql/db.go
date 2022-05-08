@@ -51,6 +51,15 @@ func (ps *PostgreSql) Get(value interface{}, query interface{}, args ...interfac
 	return nil
 }
 
+func (ps *PostgreSql) Update(value interface{}) error {
+	resultTx := ps.db.Save(value)
+	if resultTx.Error != nil {
+		return resultTx.Error
+	}
+
+	return nil
+}
+
 func (ps *PostgreSql) List(value interface{}, query interface{}, args ...interface{}) error {
 	var resultTx *gorm.DB
 	if len(query.(string)) == 0 {
