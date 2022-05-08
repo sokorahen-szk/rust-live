@@ -135,6 +135,15 @@ func Test_ArchiveVideoRepository_List(t *testing.T) {
 		a.NoError(err)
 		a.Len(list, 2)
 	})
+	t.Run("取得できるデータがないとき、空を返すこと", func(t *testing.T) {
+		postgresql.Truncate([]string{"archive_videos"})
+
+		listInput := &input.ListArchiveVideoInput{}
+
+		list, err := repository.List(ctx, listInput)
+		a.NoError(err)
+		a.Len(list, 0)
+	})
 
 }
 
