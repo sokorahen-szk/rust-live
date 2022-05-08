@@ -52,7 +52,13 @@ func (ps *PostgreSql) Get(value interface{}, query interface{}, args ...interfac
 }
 
 func (ps *PostgreSql) List(value interface{}, query interface{}, args ...interface{}) error {
-	resultTx := ps.db.Debug().Where(query, args...).Find(value)
+	var resultTx *gorm.DB
+	if len(query.(string)) == 0 {
+		resultTx = ps.db.Debug().Find(value)
+	} else {
+		resultTx = ps.db.Debug().Where(query, args...).Find(value)
+	}
+
 	if resultTx.Error != nil {
 		return resultTx.Error
 	}

@@ -28,8 +28,8 @@ func (repository *archiveVideoRepository) Create(ctx context.Context, in *input.
 	return nil
 }
 func (repository *archiveVideoRepository) GetByBroadcastId(ctx context.Context, broadcastId *entity.VideoBroadcastId) (*entity.ArchiveVideo, error) {
-	achiveVideoInput := &input.ArchiveVideoInput{}
-	err := repository.conn.Get(achiveVideoInput, "broadcast_id = ?", broadcastId)
+	achiveVideoInput := input.ArchiveVideoInput{}
+	err := repository.conn.Get(&achiveVideoInput, "broadcast_id = ?", broadcastId)
 	if err != nil {
 		return nil, err
 	}
@@ -37,9 +37,20 @@ func (repository *archiveVideoRepository) GetByBroadcastId(ctx context.Context, 
 	return repository.scan(achiveVideoInput), nil
 }
 
-func (repository *archiveVideoRepository) List(ctx context.Context) ([]*entity.ArchiveVideo, error) {
-	achiveVideoInputs := []*input.ArchiveVideoInput{}
-	err := repository.conn.List(achiveVideoInputs, "")
+func (repository *archiveVideoRepository) List(ctx context.Context, listInput *input.ListArchiveVideoInput) ([]*entity.ArchiveVideo, error) {
+	achiveVideoInputs := []input.ArchiveVideoInput{}
+
+	postgresqlQuery := postgresql.NewPostgresqlQuery(listInput.GetSearchConditions())
+
+	if len(listInput.VideoStatuses) > 0 {
+		postgresqlQuery.Add("status IN ?", listInput.VideoStatuses)
+	}
+
+	err := repository.conn.List(
+		&achiveVideoInputs,
+		postgresqlQuery.GetQueries(),
+		postgresqlQuery.GetArgs(),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -47,8 +58,8 @@ func (repository *archiveVideoRepository) List(ctx context.Context) ([]*entity.A
 	return repository.scans(achiveVideoInputs), nil
 }
 
-func (repository *archiveVideoRepository) scans(inputs []*input.ArchiveVideoInput) []*entity.ArchiveVideo {
-	resultArchiveVideos := make([]*entity.ArchiveVideo, len(inputs))
+func (repository *archiveVideoRepository) scans(inputs []input.ArchiveVideoInput) []*entity.ArchiveVideo {
+	resultArchiveVideos := make([]*entity.ArchiveVideo, 0)
 	for _, input := range inputs {
 		resultArchiveVideos = append(resultArchiveVideos, repository.scan(input))
 	}
@@ -56,7 +67,7 @@ func (repository *archiveVideoRepository) scans(inputs []*input.ArchiveVideoInpu
 	return resultArchiveVideos
 }
 
-func (repository *archiveVideoRepository) scan(input *input.ArchiveVideoInput) *entity.ArchiveVideo {
+func (repository *archiveVideoRepository) scan(input input.ArchiveVideoInput) *entity.ArchiveVideo {
 	videoId := entity.NewVideoId(input.Id)
 	broadcastId := entity.NewVideoBroadcastId(input.BroadcastId)
 	videoTitle := entity.NewVideoTitle(input.Title)

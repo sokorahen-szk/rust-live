@@ -104,16 +104,44 @@ func Test_ArchiveVideoRepository_List(t *testing.T) {
 	repository := NewArchiveVideoRepository(postgresql)
 
 	datetime := common.NewDatetime("2022-02-02T14:00:00Z")
-	generateArchiveVideo(t, ctx, "39300467239", datetime, repository)
 
-	list, err := repository.List(ctx)
-	a.NoError(err)
+	t.Run("listオプションなしの場合、すべて取得できること", func(t *testing.T) {
+		postgresql.Truncate([]string{"archive_videos"})
+
+		generateArchiveVideo(t, ctx, "39300467239", datetime, entity.VideoStatusStreaming, repository)
+		generateArchiveVideo(t, ctx, "39300467240", datetime, entity.VideoStatusStreaming, repository)
+		generateArchiveVideo(t, ctx, "39300467241", datetime, entity.VideoStatusEnded, repository)
+
+		listInput := &input.ListArchiveVideoInput{}
+
+		list, err := repository.List(ctx, listInput)
+		a.NoError(err)
+		a.Len(list, 3)
+	})
+	t.Run("listオプション、ステータス(Streaming = 1)で配信中の動画のみ取得できること", func(t *testing.T) {
+		postgresql.Truncate([]string{"archive_videos"})
+
+		generateArchiveVideo(t, ctx, "39300467239", datetime, entity.VideoStatusStreaming, repository)
+		generateArchiveVideo(t, ctx, "39300467240", datetime, entity.VideoStatusStreaming, repository)
+		generateArchiveVideo(t, ctx, "39300467241", datetime, entity.VideoStatusEnded, repository)
+
+		searchVideoStatusStreaming := entity.NewVideoStatus(entity.VideoStatusStreaming)
+
+		listInput := &input.ListArchiveVideoInput{
+			VideoStatuses: []int{searchVideoStatusStreaming.Int()},
+		}
+
+		list, err := repository.List(ctx, listInput)
+		a.NoError(err)
+		a.Len(list, 2)
+	})
+
 }
 
 func generateArchiveVideo(t *testing.T, ctx context.Context, broadcastId string,
-	datetime *common.Datetime, repo repoIf.ArchiveVideoRepositoryInterface) *input.ArchiveVideoInput {
+	datetime *common.Datetime, videoStatus entity.VideoStatus, repo repoIf.ArchiveVideoRepositoryInterface) *input.ArchiveVideoInput {
 	platform := entity.NewPlatform(entity.PlatformTwitch)
-	status := entity.NewVideoStatus(entity.VideoStatusStreaming)
+	status := entity.NewVideoStatus(videoStatus)
 	in := &input.ArchiveVideoInput{
 		BroadcastId:     broadcastId,
 		Title:           "title",
