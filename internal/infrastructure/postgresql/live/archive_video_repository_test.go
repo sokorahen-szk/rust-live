@@ -158,19 +158,54 @@ func Test_ArchiveVideoRepository_Update(t *testing.T) {
 	t.Run("ステータス(Streaming = 1)をステータス(Ended=2)に変更できること", func(t *testing.T) {
 		postgresql.Truncate([]string{"archive_videos"})
 
-		archiveVideo := generateArchiveVideo(t, ctx, "39300467239", datetime, entity.VideoStatusStreaming, repository)
+		expectedArchiveVideo := generateArchiveVideo(t, ctx, "39300467239", datetime, entity.VideoStatusStreaming, repository)
 		updateVideoStatus := entity.NewVideoStatus(entity.VideoStatusEnded)
 		updateInput := &input.UpdateArchiveVideoInput{
 			Status: updateVideoStatus,
 		}
-		err := repository.Update(ctx, archiveVideo.GetId(), updateInput)
+		err := repository.Update(ctx, expectedArchiveVideo.GetId(), updateInput)
 		a.NoError(err)
+
+		broadcastId := entity.NewVideoBroadcastId("39300467239")
+		actualArchiveVideo, err := repository.GetByBroadcastId(ctx, broadcastId)
+		a.NoError(err)
+		a.Equal(expectedArchiveVideo.GetStatus(), actualArchiveVideo.GetStatus())
+
 	})
-	t.Run("ステータス(Streaming = 1)をステータス(Ended=1)に変更してもエラーにならないこと", func(t *testing.T) {
-		// TODO:
+	t.Run("ステータス(Streaming = 1)をステータス(Streaming=1)に変更してもエラーにならないこと", func(t *testing.T) {
+		postgresql.Truncate([]string{"archive_videos"})
+
+		expectedArchiveVideo := generateArchiveVideo(t, ctx, "39300467239", datetime, entity.VideoStatusStreaming, repository)
+		updateVideoStatus := entity.NewVideoStatus(entity.VideoStatusStreaming)
+		updateInput := &input.UpdateArchiveVideoInput{
+			Status: updateVideoStatus,
+		}
+		err := repository.Update(ctx, expectedArchiveVideo.GetId(), updateInput)
+		a.NoError(err)
+
+		broadcastId := entity.NewVideoBroadcastId("39300467239")
+		actualArchiveVideo, err := repository.GetByBroadcastId(ctx, broadcastId)
+		a.NoError(err)
+		a.Equal(expectedArchiveVideo.GetStatus(), actualArchiveVideo.GetStatus())
 	})
 	t.Run("更新するデータが見つからない場合、エラーになること", func(t *testing.T) {
-		// TODO:
+		postgresql.Truncate([]string{"archive_videos"})
+
+		expectedArchiveVideo := generateArchiveVideo(t, ctx, "39300467239", datetime, entity.VideoStatusStreaming, repository)
+		updateVideoStatus := entity.NewVideoStatus(entity.VideoStatusEnded)
+		updateInput := &input.UpdateArchiveVideoInput{
+			Status: updateVideoStatus,
+		}
+
+		notFoundArchiveVideoId := entity.NewVideoId(98765)
+
+		err := repository.Update(ctx, notFoundArchiveVideoId, updateInput)
+		a.Error(err)
+
+		broadcastId := entity.NewVideoBroadcastId("39300467239")
+		actualArchiveVideo, err := repository.GetByBroadcastId(ctx, broadcastId)
+		a.NoError(err)
+		a.Equal(expectedArchiveVideo.GetStatus(), actualArchiveVideo.GetStatus())
 	})
 }
 
