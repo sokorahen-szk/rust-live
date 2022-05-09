@@ -36,3 +36,26 @@ func Test_NewDatetimeFromTime(t *testing.T) {
 	a.Equal("2022-05-04 23:59:59", d.Timestamp())
 	a.IsType(&time.Time{}, d.Time())
 }
+
+func Test_DiffSeconds(t *testing.T) {
+	a := assert.New(t)
+
+	t.Run("d > d2の時、正の値を返す", func(t *testing.T) {
+		d := NewDatetime("2022-02-02T01:01:10Z")
+		d2 := NewDatetime("2022-02-02T00:00:00Z")
+		actual := d.DiffSeconds(d2.Time())
+		a.Equal(3670, actual)
+	})
+	t.Run("d < d2の時、負の値を返す", func(t *testing.T) {
+		d := NewDatetime("2022-02-02T00:00:00Z")
+		d2 := NewDatetime("2022-02-02T01:01:10Z")
+		actual := d.DiffSeconds(d2.Time())
+		a.Equal(-3670, actual)
+	})
+	t.Run("d == d2の時、0を返す", func(t *testing.T) {
+		d := NewDatetime("2022-02-02T00:00:00Z")
+		d2 := NewDatetime("2022-02-02T00:00:00Z")
+		actual := d.DiffSeconds(d2.Time())
+		a.Equal(0, actual)
+	})
+}

@@ -28,8 +28,8 @@ func (repository *archiveVideoRepository) Create(ctx context.Context, in *input.
 	return nil
 }
 func (repository *archiveVideoRepository) GetByBroadcastId(ctx context.Context, broadcastId *entity.VideoBroadcastId) (*entity.ArchiveVideo, error) {
-	achiveVideoInput := &input.ArchiveVideoInput{}
-	err := repository.conn.Get(achiveVideoInput, "broadcast_id = ?", broadcastId)
+	achiveVideoInput := input.ArchiveVideoInput{}
+	err := repository.conn.Get(&achiveVideoInput, "broadcast_id = ?", broadcastId)
 	if err != nil {
 		return nil, err
 	}
@@ -37,24 +37,69 @@ func (repository *archiveVideoRepository) GetByBroadcastId(ctx context.Context, 
 	return repository.scan(achiveVideoInput), nil
 }
 
-func (repository *archiveVideoRepository) List(ctx context.Context) ([]*entity.ArchiveVideo, error) {
-	// TODO: 開発する
-	return nil, nil
+func (repository *archiveVideoRepository) List(ctx context.Context, listInput *input.ListArchiveVideoInput) ([]*entity.ArchiveVideo, error) {
+	achiveVideoInputs := []input.ArchiveVideoInput{}
+
+	postgresqlQuery := postgresql.NewPostgresqlQuery(listInput.GetSearchConditions())
+
+	if len(listInput.VideoStatuses) > 0 {
+		postgresqlQuery.Add("status IN ?", listInput.VideoStatuses)
+	}
+
+	err := repository.conn.List(
+		&achiveVideoInputs,
+		postgresqlQuery.GetQueries(),
+		postgresqlQuery.GetArgs(),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return repository.scans(achiveVideoInputs), nil
 }
 
-func (repository *archiveVideoRepository) scan(in *input.ArchiveVideoInput) *entity.ArchiveVideo {
+func (repository *archiveVideoRepository) Update(ctx context.Context, id *entity.VideoId, updateInput *input.UpdateArchiveVideoInput) error {
+	achiveVideoInput := input.ArchiveVideoInput{}
+	err := repository.conn.Get(&achiveVideoInput, "id = ?", id)
+	if err != nil {
+		return err
+	}
 
-	videoId := entity.NewVideoId(in.Id)
-	broadcastId := entity.NewVideoBroadcastId(in.BroadcastId)
-	videoTitle := entity.NewVideoTitle(in.Title)
-	videoUrl := entity.NewVideoUrl(in.Url)
-	videoStremer := entity.NewVideoStremer(in.Stremer)
-	thumbnailImage := entity.NewThumbnailImage(in.ThumbnailImage)
-	startedDatetime := entity.NewStartedDatetimeFromTime(in.StartedDatetime)
+	err = repository.conn.Update(&achiveVideoInput)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository *archiveVideoRepository) scans(inputs []input.ArchiveVideoInput) []*entity.ArchiveVideo {
+	resultArchiveVideos := make([]*entity.ArchiveVideo, 0)
+	for _, input := range inputs {
+		resultArchiveVideos = append(resultArchiveVideos, repository.scan(input))
+	}
+
+	return resultArchiveVideos
+}
+
+func (repository *archiveVideoRepository) scan(input input.ArchiveVideoInput) *entity.ArchiveVideo {
+	videoId := entity.NewVideoId(input.Id)
+	broadcastId := entity.NewVideoBroadcastId(input.BroadcastId)
+	videoTitle := entity.NewVideoTitle(input.Title)
+	videoStremer := entity.NewVideoStremer(input.Stremer)
+	platform := entity.NewPlatformFromInt(input.Platform)
+	status := entity.NewVideoStatus(entity.VideoStatusStreaming)
+	thumbnailImage := entity.NewThumbnailImage(input.ThumbnailImage)
+	startedDatetime := entity.NewStartedDatetimeFromTime(input.StartedDatetime)
 
 	var endedDatetime *entity.EndedDatetime
-	if in.EndedDatetime != nil {
-		endedDatetime = entity.NewEndedDatetimeFromTime(&in.EndedDatetime.Time)
+	if input.EndedDatetime != nil {
+		endedDatetime = entity.NewEndedDatetimeFromTime(&input.EndedDatetime.Time)
+	}
+
+	var videoUrl *entity.VideoUrl
+	if input.Url != nil {
+		videoUrl = entity.NewVideoUrl(input.Url.String)
 	}
 
 	return entity.NewArchiveVideo(
@@ -63,6 +108,8 @@ func (repository *archiveVideoRepository) scan(in *input.ArchiveVideoInput) *ent
 		videoTitle,
 		videoUrl,
 		videoStremer,
+		platform,
+		status,
 		thumbnailImage,
 		startedDatetime,
 		endedDatetime,

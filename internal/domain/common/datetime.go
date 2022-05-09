@@ -1,10 +1,12 @@
 package common
 
-import "time"
+import (
+	"time"
+)
 
 const (
-	DateFormat      = "2006-01-02"
-	TimestampFormat = "2006-01-02 15:04:05"
+	DateFormat      string = "2006-01-02"
+	TimestampFormat string = "2006-01-02 15:04:05"
 )
 
 type Datetime struct {
@@ -50,4 +52,15 @@ func (ins *Datetime) Timestamp() string {
 
 func (ins *Datetime) Time() *time.Time {
 	return ins.time
+}
+
+func (ins *Datetime) TimeFunc() func() time.Time {
+	return func() time.Time {
+		return *ins.Time()
+	}
+}
+
+func (ins *Datetime) DiffSeconds(tm *time.Time) int {
+	diff := ins.Time().Sub(*tm)
+	return int(diff.Seconds())
 }

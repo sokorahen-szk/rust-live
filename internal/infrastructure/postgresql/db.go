@@ -51,6 +51,30 @@ func (ps *PostgreSql) Get(value interface{}, query interface{}, args ...interfac
 	return nil
 }
 
+func (ps *PostgreSql) Update(value interface{}) error {
+	resultTx := ps.db.Save(value)
+	if resultTx.Error != nil {
+		return resultTx.Error
+	}
+
+	return nil
+}
+
+func (ps *PostgreSql) List(value interface{}, query interface{}, args ...interface{}) error {
+	var resultTx *gorm.DB
+	if len(query.(string)) == 0 {
+		resultTx = ps.db.Debug().Find(value)
+	} else {
+		resultTx = ps.db.Debug().Where(query, args...).Find(value)
+	}
+
+	if resultTx.Error != nil {
+		return resultTx.Error
+	}
+
+	return nil
+}
+
 func (ps *PostgreSql) Truncate(tables []string) error {
 	for _, table := range tables {
 		resultTx := ps.db.Debug().Exec(fmt.Sprintf("DELETE FROM %s;", table))

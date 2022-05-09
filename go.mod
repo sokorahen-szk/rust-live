@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/go-redis/redis/v8 v8.11.5
+	github.com/golang/mock v1.6.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.1
 	google.golang.org/grpc v1.46.0
