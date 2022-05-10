@@ -122,7 +122,7 @@ func Test_FetchLiveVideosUsecase_Handle(t *testing.T) {
 		a.Equal("2022-02-02T00:00:00Z", actualArchiveVideo.GetStartedDatetime().RFC3339())
 		a.Nil(actualArchiveVideo.GetEndedDatetime())
 
-		listInput := list.NewListLiveVideosInput("")
+		listInput := list.NewListLiveVideoInput("")
 		actualLiveVideos, err := liveVideoRepository.List(ctx, listInput)
 		a.NoError(err)
 		a.Len(actualLiveVideos, 1)

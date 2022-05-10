@@ -22,5 +22,5 @@ func (s *LiveController) ListLiveVideos(ctx context.Context, req *pb.ListLiveVid
 	}
 
 	usecase := application.NewInjectListLiveVideosUsecase(ctx)
-	return usecase.Handle(ctx, list.NewListLiveVideosInput(formData.GetSearchKeywords()))
+	return usecase.Handle(ctx, list.NewListLiveVideoInput(formData.GetSearchKeywords()))
 }

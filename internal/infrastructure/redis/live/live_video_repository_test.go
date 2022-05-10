@@ -31,7 +31,7 @@ func Test_LiveVideoRepository_Create(t *testing.T) {
 		err := liveVideoRepository.Create(ctx, liveVideos)
 		a.NoError(err)
 
-		actualLiveVideos, err := liveVideoRepository.List(ctx, &list.ListLiveVideosInput{})
+		actualLiveVideos, err := liveVideoRepository.List(ctx, &list.ListLiveVideoInput{})
 		a.NoError(err)
 		a.Len(actualLiveVideos, 3)
 	})
@@ -43,7 +43,7 @@ func Test_LiveVideoRepository_Create(t *testing.T) {
 		err := liveVideoRepository.Create(ctx, emptyLiveVideos)
 		a.NoError(err)
 
-		actualLiveVideos, err := liveVideoRepository.List(ctx, &list.ListLiveVideosInput{})
+		actualLiveVideos, err := liveVideoRepository.List(ctx, &list.ListLiveVideoInput{})
 		a.NoError(err)
 		a.Len(actualLiveVideos, 0)
 	})
@@ -77,7 +77,7 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 			{"検索キーワードを指定して、一致するデータが1件の場合、1件を返す.", "太郎1", 1},
 		}
 		for _, p := range tests {
-			input := list.NewListLiveVideosInput(p.arg)
+			input := list.NewListLiveVideoInput(p.arg)
 
 			t.Run(p.name, func(t *testing.T) {
 				actual, err := liveVideoRepository.List(ctx, input)

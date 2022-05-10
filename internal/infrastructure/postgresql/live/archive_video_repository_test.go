@@ -125,10 +125,8 @@ func Test_ArchiveVideoRepository_List(t *testing.T) {
 		generateArchiveVideo(t, ctx, "39300467240", datetime, entity.VideoStatusStreaming, repository)
 		generateArchiveVideo(t, ctx, "39300467241", datetime, entity.VideoStatusEnded, repository)
 
-		searchVideoStatusStreaming := entity.NewVideoStatus(entity.VideoStatusStreaming)
-
 		listInput := &input.ListArchiveVideoInput{
-			VideoStatuses: []int{searchVideoStatusStreaming.Int()},
+			VideoStatuses: []entity.VideoStatus{entity.VideoStatusStreaming},
 		}
 
 		list, err := repository.List(ctx, listInput)

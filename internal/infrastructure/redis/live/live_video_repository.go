@@ -23,7 +23,7 @@ func NewLiveVideoRepository(conn *redis.Redis) repository.LiveVideoRepositoryInt
 	}
 }
 
-func (repository *liveVideoRepository) List(ctx context.Context, listInput *list.ListLiveVideosInput) ([]*entity.LiveVideo, error) {
+func (repository *liveVideoRepository) List(ctx context.Context, listInput *list.ListLiveVideoInput) ([]*entity.LiveVideo, error) {
 	data, err := repository.conn.Get(ctx, liveVideoListKey)
 	if err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func (repository *liveVideoRepository) Create(ctx context.Context, liveVideos []
 	return nil
 }
 
-func (repository *liveVideoRepository) listFilter(liveVideos []*entity.LiveVideo, listInput *list.ListLiveVideosInput) []*entity.LiveVideo {
+func (repository *liveVideoRepository) listFilter(liveVideos []*entity.LiveVideo, listInput *list.ListLiveVideoInput) []*entity.LiveVideo {
 	filtered := make([]*entity.LiveVideo, 0)
 
 	for _, liveVideo := range liveVideos {

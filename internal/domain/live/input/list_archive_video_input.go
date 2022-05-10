@@ -1,5 +1,7 @@
 package input
 
+import "github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
+
 type SearchConditions string
 
 const (
@@ -8,7 +10,7 @@ const (
 )
 
 type ListArchiveVideoInput struct {
-	VideoStatuses []int
+	VideoStatuses []entity.VideoStatus
 
 	SearchConditions *SearchConditions
 }
