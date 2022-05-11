@@ -13,5 +13,6 @@ func Test_NewConfig(t *testing.T) {
 	t.Run(".envファイルがLoadできること", func(t *testing.T) {
 		a.Equal("local", c.Env)
 		a.Equal(9000, c.Port)
+		a.True(c.PostgreSql.SkipDefaultTransaction)
 	})
 }

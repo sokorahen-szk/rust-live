@@ -58,19 +58,24 @@ func (repository *archiveVideoRepository) List(ctx context.Context, listInput *i
 	return repository.scans(achiveVideoInputs), nil
 }
 
-func (repository *archiveVideoRepository) Update(ctx context.Context, id *entity.VideoId, updateInput *input.UpdateArchiveVideoInput) error {
+func (repository *archiveVideoRepository) Update(ctx context.Context, id *entity.VideoId, updateInput *input.UpdateArchiveVideoInput) (*entity.ArchiveVideo, error) {
 	achiveVideoInput := input.ArchiveVideoInput{}
 	err := repository.conn.Get(&achiveVideoInput, "id = ?", id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	err = repository.conn.Update(&achiveVideoInput)
+	updateValues := map[string]interface{}{}
+	if updateInput.Status != nil {
+		updateValues["status"] = updateInput.Status.Int()
+	}
+
+	err = repository.conn.Update(&achiveVideoInput, updateValues)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return repository.scan(achiveVideoInput), nil
 }
 
 func (repository *archiveVideoRepository) scans(inputs []input.ArchiveVideoInput) []*entity.ArchiveVideo {
@@ -88,7 +93,7 @@ func (repository *archiveVideoRepository) scan(input input.ArchiveVideoInput) *e
 	videoTitle := entity.NewVideoTitle(input.Title)
 	videoStremer := entity.NewVideoStremer(input.Stremer)
 	platform := entity.NewPlatformFromInt(input.Platform)
-	status := entity.NewVideoStatus(entity.VideoStatusStreaming)
+	status := entity.NewVideoStatusFromInt(input.Status)
 	thumbnailImage := entity.NewThumbnailImage(input.ThumbnailImage)
 	startedDatetime := entity.NewStartedDatetimeFromTime(input.StartedDatetime)
 

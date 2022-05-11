@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/sokorahen-szk/rust-live/internal/domain/common"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/input"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/repository"
@@ -30,6 +31,9 @@ func NewUpdateLiveVideosUsecase(
 }
 
 func (usecase updateLiveVideosUsecase) Handle(ctx context.Context) error {
+	now := usecase.now()
+	currentDatetime := common.NewDatetimeFromTime(&now)
+
 	listArchiveVideos, err := usecase.listArchiveVideos(ctx)
 	if err != nil {
 		return err
@@ -41,7 +45,7 @@ func (usecase updateLiveVideosUsecase) Handle(ctx context.Context) error {
 	}
 
 	videoIds := usecase.filteredEndedVideoIds(listArchiveVideos, listLiveVideos)
-	err = usecase.updateVideoStatus(ctx, videoIds)
+	err = usecase.updateVideoStatus(ctx, videoIds, currentDatetime)
 	if err != nil {
 		return err
 	}
@@ -91,13 +95,15 @@ func (usecase updateLiveVideosUsecase) filteredEndedVideoIds(archiveVideos []*en
 	return filteredVideoIds
 }
 
-func (usecase updateLiveVideosUsecase) updateVideoStatus(ctx context.Context, videoIds []*entity.VideoId) error {
+func (usecase updateLiveVideosUsecase) updateVideoStatus(ctx context.Context, videoIds []*entity.VideoId,
+	currentDatetime *common.Datetime) error {
 	updateInput := &input.UpdateArchiveVideoInput{
 		Status: entity.NewVideoStatus(entity.VideoStatusEnded),
+		//EndedDatetimeを更新できるようにする
 	}
 
 	for _, videoId := range videoIds {
-		err := usecase.archiveVideoRepository.Update(ctx, videoId, updateInput)
+		_, err := usecase.archiveVideoRepository.Update(ctx, videoId, updateInput)
 		if err != nil {
 			return err
 		}
