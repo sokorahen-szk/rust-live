@@ -69,6 +69,9 @@ func (repository *archiveVideoRepository) Update(ctx context.Context, id *entity
 	if updateInput.Status != nil {
 		updateValues["status"] = updateInput.Status.Int()
 	}
+	if updateInput.EndedDatetime != nil {
+		updateValues["ended_datetime"] = updateInput.EndedDatetime.Timestamp()
+	}
 
 	err = repository.conn.Update(&achiveVideoInput, updateValues)
 	if err != nil {

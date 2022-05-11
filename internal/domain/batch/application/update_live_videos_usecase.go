@@ -98,8 +98,8 @@ func (usecase updateLiveVideosUsecase) filteredEndedVideoIds(archiveVideos []*en
 func (usecase updateLiveVideosUsecase) updateVideoStatus(ctx context.Context, videoIds []*entity.VideoId,
 	currentDatetime *common.Datetime) error {
 	updateInput := &input.UpdateArchiveVideoInput{
-		Status: entity.NewVideoStatus(entity.VideoStatusEnded),
-		//EndedDatetimeを更新できるようにする
+		Status:        entity.NewVideoStatus(entity.VideoStatusEnded),
+		EndedDatetime: entity.NewEndedDatetimeFromTime(currentDatetime.Time()),
 	}
 
 	for _, videoId := range videoIds {

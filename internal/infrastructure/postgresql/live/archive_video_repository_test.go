@@ -153,45 +153,79 @@ func Test_ArchiveVideoRepository_Update(t *testing.T) {
 
 	datetime := common.NewDatetime("2022-02-02T14:00:00Z")
 
-	t.Run("ステータス(Streaming = 1)をステータス(Ended=2)に変更できること", func(t *testing.T) {
-		postgresql.Truncate([]string{"archive_videos"})
+	t.Run("status更新", func(t *testing.T) {
+		t.Run("ステータス(Streaming = 1)をステータス(Ended=2)に変更できること", func(t *testing.T) {
+			postgresql.Truncate([]string{"archive_videos"})
 
-		expectedArchiveVideo := generateArchiveVideo(t, ctx, "39300467239", datetime, entity.VideoStatusStreaming, repository)
-		updateVideoStatus := entity.NewVideoStatus(entity.VideoStatusEnded)
+			expectedArchiveVideo := generateArchiveVideo(t, ctx, "39300467239", datetime, entity.VideoStatusStreaming, repository)
+			updateVideoStatus := entity.NewVideoStatus(entity.VideoStatusEnded)
 
-		updateInput := &input.UpdateArchiveVideoInput{
-			Status: updateVideoStatus,
-		}
-		actualArchiveVideo, err := repository.Update(ctx, expectedArchiveVideo.GetId(), updateInput)
+			updateInput := &input.UpdateArchiveVideoInput{
+				Status: updateVideoStatus,
+			}
+			actualArchiveVideo, err := repository.Update(ctx, expectedArchiveVideo.GetId(), updateInput)
 
-		a.NoError(err)
-		a.Equal(updateVideoStatus.Int(), actualArchiveVideo.GetStatus().Int())
+			a.NoError(err)
+			a.Equal(updateVideoStatus, actualArchiveVideo.GetStatus())
+		})
+		t.Run("ステータス(Streaming = 1)をステータス(Streaming=1)に変更してもエラーにならないこと", func(t *testing.T) {
+			postgresql.Truncate([]string{"archive_videos"})
+
+			expectedArchiveVideo := generateArchiveVideo(t, ctx, "39300467240", datetime, entity.VideoStatusStreaming, repository)
+			updateVideoStatus := entity.NewVideoStatus(entity.VideoStatusStreaming)
+			updateInput := &input.UpdateArchiveVideoInput{
+				Status: updateVideoStatus,
+			}
+			actualArchiveVideo, err := repository.Update(ctx, expectedArchiveVideo.GetId(), updateInput)
+			a.NoError(err)
+			a.Equal(updateVideoStatus, actualArchiveVideo.GetStatus())
+		})
+		t.Run("更新するデータが見つからない場合、エラーになること", func(t *testing.T) {
+			postgresql.Truncate([]string{"archive_videos"})
+
+			generateArchiveVideo(t, ctx, "39300467240", datetime, entity.VideoStatusStreaming, repository)
+			updateVideoStatus := entity.NewVideoStatus(entity.VideoStatusEnded)
+			updateInput := &input.UpdateArchiveVideoInput{
+				Status: updateVideoStatus,
+			}
+
+			notFoundArchiveVideoId := entity.NewVideoId(98765)
+			actualArchiveVideo, err := repository.Update(ctx, notFoundArchiveVideoId, updateInput)
+			a.Error(err)
+			a.Nil(actualArchiveVideo)
+		})
 	})
-	t.Run("ステータス(Streaming = 1)をステータス(Streaming=1)に変更してもエラーにならないこと", func(t *testing.T) {
-		postgresql.Truncate([]string{"archive_videos"})
+	t.Run("ended_datetime更新", func(t *testing.T) {
+		t.Run("ended_datetimeが2022-01-01T15:00:00Zで更新できること", func(t *testing.T) {
+			postgresql.Truncate([]string{"archive_videos"})
 
-		expectedArchiveVideo := generateArchiveVideo(t, ctx, "39300467240", datetime, entity.VideoStatusStreaming, repository)
-		updateVideoStatus := entity.NewVideoStatus(entity.VideoStatusStreaming)
-		updateInput := &input.UpdateArchiveVideoInput{
-			Status: updateVideoStatus,
-		}
-		actualArchiveVideo, err := repository.Update(ctx, expectedArchiveVideo.GetId(), updateInput)
-		a.NoError(err)
-		a.Equal(updateVideoStatus, actualArchiveVideo.GetStatus())
-	})
-	t.Run("更新するデータが見つからない場合、エラーになること", func(t *testing.T) {
-		postgresql.Truncate([]string{"archive_videos"})
+			expectedArchiveVideo := generateArchiveVideo(t, ctx, "39300467239", datetime, entity.VideoStatusStreaming, repository)
 
-		generateArchiveVideo(t, ctx, "39300467240", datetime, entity.VideoStatusStreaming, repository)
-		updateVideoStatus := entity.NewVideoStatus(entity.VideoStatusEnded)
-		updateInput := &input.UpdateArchiveVideoInput{
-			Status: updateVideoStatus,
-		}
+			endedDatetime := entity.NewEndedDatetime("2022-01-01T15:00:00Z")
 
-		notFoundArchiveVideoId := entity.NewVideoId(98765)
-		actualArchiveVideo, err := repository.Update(ctx, notFoundArchiveVideoId, updateInput)
-		a.Error(err)
-		a.Nil(actualArchiveVideo)
+			updateInput := &input.UpdateArchiveVideoInput{
+				EndedDatetime: endedDatetime,
+			}
+			actualArchiveVideo, err := repository.Update(ctx, expectedArchiveVideo.GetId(), updateInput)
+
+			a.NoError(err)
+			a.Equal(endedDatetime, actualArchiveVideo.GetEndedDatetime())
+		})
+		t.Run("更新するデータが見つからない場合、エラーになること", func(t *testing.T) {
+			postgresql.Truncate([]string{"archive_videos"})
+
+			generateArchiveVideo(t, ctx, "39300467240", datetime, entity.VideoStatusStreaming, repository)
+
+			endedDatetime := entity.NewEndedDatetime("2022-01-01T15:00:00Z")
+			updateInput := &input.UpdateArchiveVideoInput{
+				EndedDatetime: endedDatetime,
+			}
+
+			notFoundArchiveVideoId := entity.NewVideoId(98765)
+			actualArchiveVideo, err := repository.Update(ctx, notFoundArchiveVideoId, updateInput)
+			a.Error(err)
+			a.Nil(actualArchiveVideo)
+		})
 	})
 }
 
