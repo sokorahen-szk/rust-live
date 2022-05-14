@@ -86,4 +86,11 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 			})
 		}
 	})
+	t.Run("redis内にデータが1件も存在しない場合、空配列を返すこと", func(t *testing.T) {
+		redis.Truncate()
+
+		liveVideos, err := liveVideoRepository.List(ctx, &list.ListLiveVideoInput{})
+		a.NoError(err)
+		a.Len(liveVideos, 0)
+	})
 }

@@ -23,7 +23,7 @@ func NewUpdateLiveVideosUsecase(
 	archiveVideoRepository repository.ArchiveVideoRepositoryInterface,
 	now func() time.Time,
 ) usecaseBatch.UpdateLiveVideosUsecaseInterface {
-	return fetchLiveVideosUsecase{
+	return updateLiveVideosUsecase{
 		liveVideoRepository:    liveVideoRepository,
 		archiveVideoRepository: archiveVideoRepository,
 		now:                    now,

@@ -3,6 +3,7 @@ package live
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
@@ -24,12 +25,17 @@ func NewLiveVideoRepository(conn *redis.Redis) repository.LiveVideoRepositoryInt
 }
 
 func (repository *liveVideoRepository) List(ctx context.Context, listInput *list.ListLiveVideoInput) ([]*entity.LiveVideo, error) {
+	var liveVideos []*entity.LiveVideo
+
 	data, err := repository.conn.Get(ctx, liveVideoListKey)
 	if err != nil {
+		if errors.Is(&redis.RedisCacheEmptyError{}, err) {
+			return liveVideos, nil
+		}
+
 		return nil, err
 	}
 
-	var liveVideos []*entity.LiveVideo
 	err = json.Unmarshal([]byte(data), &liveVideos)
 	if err != nil {
 		return nil, err

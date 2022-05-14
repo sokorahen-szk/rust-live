@@ -187,4 +187,10 @@ func Test_FetchLiveVideosUsecase_Handle(t *testing.T) {
 		a.Equal("2022-02-02T00:00:00Z", actualArchiveVideo.GetStartedDatetime().RFC3339())
 		a.Nil(actualArchiveVideo.GetEndedDatetime())
 	})
+	t.Run("異常系/twitchAPI ListBroadcastの取得に失敗した場合、エラーで終了すること", func(t *testing.T) {
+		// TODO:
+	})
+	t.Run("異常系/twitchAPI ListVideoByUserIdの取得に失敗した場合、エラーで終了すること", func(t *testing.T) {
+		// TODO:
+	})
 }
