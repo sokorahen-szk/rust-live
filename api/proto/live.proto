@@ -26,6 +26,7 @@ message ListLiveVideosRequest {
     string search_keywords = 1;                 // 検索キーワード(タイトル/配信者の検索可)
     Sort sort = 2;                              // ソートキー(デフォルト: 0)
     int32 page = 3;                             // 現在ページ
+    int32 limit = 4;                            // 取得する件数(デフォルト: 10)
 
     enum Sort {
         SORT_UNKNOWN = 0;                       // ソートキー未設定
@@ -46,6 +47,7 @@ message ListArchiveVideosRequest {
     string search_keywords = 1;                 // 検索キーワード(タイトル/配信者の検索可)
     Sort sort = 2;                              // ソートキー(デフォルト: 0)
     int32 page = 3;                             // 現在ページ
+    int32 limit = 4;                            // 取得する件数(デフォルト: 10)
 
     enum Sort {
         SORT_UNKNOWN = 0;                       // ソートキー未設定
