@@ -10,9 +10,31 @@ service LiveService {
     rpc ListArchiveVideos (ListArchiveVideosRequest) returns (ListArchiveVideosResponse);
 }
 
+enum VideoPlatform {
+    VIDEO_PLATFORM_UNKNOWN = 0;
+    TWITCH = 1;
+    YOUTUBE = 2;
+}
+
+enum VideoStatus {
+    VIDEO_STATUS_UNKNOWN = 0;
+    STREAMING = 1;
+    ENDED = 2;
+}
+
 message ListLiveVideosRequest {
     string search_keywords = 1;                 // 検索キーワード(タイトル/配信者の検索可)
-    int32 page = 2;                             // 現在ページ
+    Sort sort = 2;                              // ソートキー(デフォルト: 0)
+    int32 page = 3;                             // 現在ページ
+
+    enum Sort {
+        SORT_UNKNOWN = 0;                       // ソートキー未設定
+        SORT_PLATFORM = 1;                      // 配信プラットフォームでソートする
+        SORT_VIEWER_ASC = 2;                    // 視聴者数が少ない順に並べる
+        SORT_VIEWER_DESC = 3;                   // 視聴者数が多い順に並べる
+        SORT_STARTED_DATETIME_ASC = 4;          // 配信開始日時が新しい順に並べる
+        SORT_STARTED_DATETIME_DESC = 5;         // 配信開始日時が古い順に並べる
+    }
 }
 
 message ListLiveVideosResponse {
@@ -22,7 +44,16 @@ message ListLiveVideosResponse {
 
 message ListArchiveVideosRequest {
     string search_keywords = 1;                 // 検索キーワード(タイトル/配信者の検索可)
-    int32 page = 2;                             // 現在ページ
+    Sort sort = 2;                              // ソートキー(デフォルト: 0)
+    int32 page = 3;                             // 現在ページ
+
+    enum Sort {
+        SORT_UNKNOWN = 0;                       // ソートキー未設定
+        SORT_STATUS = 1;                        // ステータスでソートする
+        SORT_PLATFORM = 2;                      // 配信プラットフォームでソートする
+        SORT_STARTED_DATETIME_ASC = 3;          // 配信開始日時が新しい順に並べる
+        SORT_STARTED_DATETIME_DESC = 4;         // 配信開始日時が古い順に並べる
+    }
 }
 
 message ListArchiveVideosResponse {
@@ -32,20 +63,27 @@ message ListArchiveVideosResponse {
 
 message LiveVideo {
     int32 id = 1;                               // 配信動画ID
-    string title = 2;                           // 配信動画名
-    string stremer = 3;                         // 配信者
-    int32 viewer = 4;                           // 視聴者
-    string thumbnail_image = 5;                 // 動画サムネイル
-    string started_datetime = 6;                // 動画配信開始日時(RFC3339)
-    int32 elapsed_times = 7;                    // システム時刻と動画配信日時の差分を秒単位で返す.
-    string elapsed_times_text = 8;              // システム時刻と動画配信日時の差分をテキスト表記で返す.
+    string broadcastId = 2;                     // ライブ配信ID
+    string title = 3;                           // 配信動画名
+    string url = 4;                             // 配信URL
+    string stremer = 5;                         // 配信者
+    int32 viewer = 6;                           // 視聴者
+    VideoPlatform video_platform = 7;           // 配信プラットフォーム
+    string thumbnail_image = 8;                 // 配信動画サムネイル
+    string started_datetime = 9;                // 配信開始日時(RFC3339)
+    int32 elapsed_times = 10;                   // システム時刻と配信日時の差分を秒単位で返す.
+    string elapsed_times_text = 11;             // システム時刻と配信日時の差分をテキスト表記で返す.
 }
 
 message ArchiveVideo {
     int32 id = 1;                               // 配信動画ID
-    string title = 2;                           // 配信動画名
-    string stremer = 3;                         // 配信者
-    string thumbnail_image = 4;                 // 動画サムネイル
-    string started_datetime = 5;                // 動画配信開始日時(RFC3339)
-    string ended_datetime = 6;                  // 動画配信終了日時(RFC3339)
+    string broadcastId = 2;                     // ライブ配信ID
+    string title = 3;                           // 配信動画名
+    string url = 4;                             // 配信アーカイブURL
+    string thumbnail_image = 5;                 // 配信動画サムネイル
+    string stremer = 6;                         // 配信者
+    VideoPlatform video_platform = 7;           // 配信プラットフォーム
+    VideoStatus video_status = 8;               // 配信動画ステータス
+    string started_datetime = 9;                // 配信開始日時(RFC3339)
+    string ended_datetime = 10;                 // 配信終了日時(RFC3339)
 }
