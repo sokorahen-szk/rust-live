@@ -21,7 +21,7 @@ func NewListLiveVideosUsecase(
 	}
 }
 
-func (ins listLiveVideosUsecase) Handle(ctx context.Context, input *list.ListLiveVideosInput) (*pb.ListLiveVideosResponse, error) {
+func (ins listLiveVideosUsecase) Handle(ctx context.Context, input *list.ListLiveVideoInput) (*pb.ListLiveVideosResponse, error) {
 	liveVideos, err := ins.liveVideoRepository.List(ctx, input)
 	if err != nil {
 		return nil, err

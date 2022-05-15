@@ -11,5 +11,5 @@ type ArchiveVideoRepositoryInterface interface {
 	GetByBroadcastId(context.Context, *entity.VideoBroadcastId) (*entity.ArchiveVideo, error)
 	List(context.Context, *input.ListArchiveVideoInput) ([]*entity.ArchiveVideo, error)
 	Create(context.Context, *input.ArchiveVideoInput) error
-	Update(context.Context, *entity.VideoId, *input.UpdateArchiveVideoInput) error
+	Update(context.Context, *entity.VideoId, *input.UpdateArchiveVideoInput) (*entity.ArchiveVideo, error)
 }

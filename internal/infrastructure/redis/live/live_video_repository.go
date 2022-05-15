@@ -3,6 +3,7 @@ package live
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
@@ -23,13 +24,18 @@ func NewLiveVideoRepository(conn *redis.Redis) repository.LiveVideoRepositoryInt
 	}
 }
 
-func (repository *liveVideoRepository) List(ctx context.Context, listInput *list.ListLiveVideosInput) ([]*entity.LiveVideo, error) {
+func (repository *liveVideoRepository) List(ctx context.Context, listInput *list.ListLiveVideoInput) ([]*entity.LiveVideo, error) {
+	var liveVideos []*entity.LiveVideo
+
 	data, err := repository.conn.Get(ctx, liveVideoListKey)
 	if err != nil {
+		if errors.Is(&redis.RedisCacheEmptyError{}, err) {
+			return liveVideos, nil
+		}
+
 		return nil, err
 	}
 
-	var liveVideos []*entity.LiveVideo
 	err = json.Unmarshal([]byte(data), &liveVideos)
 	if err != nil {
 		return nil, err
@@ -57,7 +63,7 @@ func (repository *liveVideoRepository) Create(ctx context.Context, liveVideos []
 	return nil
 }
 
-func (repository *liveVideoRepository) listFilter(liveVideos []*entity.LiveVideo, listInput *list.ListLiveVideosInput) []*entity.LiveVideo {
+func (repository *liveVideoRepository) listFilter(liveVideos []*entity.LiveVideo, listInput *list.ListLiveVideoInput) []*entity.LiveVideo {
 	filtered := make([]*entity.LiveVideo, 0)
 
 	for _, liveVideo := range liveVideos {

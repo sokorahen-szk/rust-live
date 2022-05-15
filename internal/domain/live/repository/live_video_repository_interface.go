@@ -9,5 +9,5 @@ import (
 
 type LiveVideoRepositoryInterface interface {
 	Create(context.Context, []*entity.LiveVideo) error
-	List(context.Context, *list.ListLiveVideosInput) ([]*entity.LiveVideo, error)
+	List(context.Context, *list.ListLiveVideoInput) ([]*entity.LiveVideo, error)
 }

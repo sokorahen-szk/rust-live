@@ -81,11 +81,12 @@ func (mr *MockArchiveVideoRepositoryInterfaceMockRecorder) List(arg0, arg1 inter
 }
 
 // Update mocks base method.
-func (m *MockArchiveVideoRepositoryInterface) Update(arg0 context.Context, arg1 *entity.VideoId, arg2 *input.UpdateArchiveVideoInput) error {
+func (m *MockArchiveVideoRepositoryInterface) Update(arg0 context.Context, arg1 *entity.VideoId, arg2 *input.UpdateArchiveVideoInput) (*entity.ArchiveVideo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", arg0, arg1, arg2)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*entity.ArchiveVideo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Update indicates an expected call of Update.

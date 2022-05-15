@@ -7,5 +7,5 @@ import (
 )
 
 type ListLiveVideosUsecaseInterface interface {
-	Handle(context.Context, *ListLiveVideosInput) (*pb.ListLiveVideosResponse, error)
+	Handle(context.Context, *ListLiveVideoInput) (*pb.ListLiveVideosResponse, error)
 }

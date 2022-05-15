@@ -1,15 +1,15 @@
 package list
 
-type ListLiveVideosInput struct {
+type ListLiveVideoInput struct {
 	searchKeywords string
 }
 
-func NewListLiveVideosInput(searchKeywords string) *ListLiveVideosInput {
-	return &ListLiveVideosInput{
+func NewListLiveVideoInput(searchKeywords string) *ListLiveVideoInput {
+	return &ListLiveVideoInput{
 		searchKeywords: searchKeywords,
 	}
 }
 
-func (ins ListLiveVideosInput) SearchKeywords() string {
+func (ins ListLiveVideoInput) SearchKeywords() string {
 	return ins.searchKeywords
 }

@@ -14,13 +14,14 @@ type Config struct {
 }
 
 type PostgreSql struct {
-	Host     string
-	User     string
-	Password string
-	DbName   string
-	Tz       string
-	SslMode  string
-	Port     int
+	Host                   string
+	User                   string
+	Password               string
+	DbName                 string
+	Tz                     string
+	SslMode                string
+	Port                   int
+	SkipDefaultTransaction bool
 }
 
 type Redis struct {
@@ -48,13 +49,14 @@ func (c *Config) Load() *Config {
 		Env:  os.Getenv("APP_ENV"),
 		Port: c.Int(os.Getenv("APP_SERVER_PORT")),
 		PostgreSql: PostgreSql{
-			Host:     os.Getenv("POSTGRESQL_HOST"),
-			User:     os.Getenv("POSTGRESQL_USER"),
-			Password: os.Getenv("POSTGRESQL_PASSWORD"),
-			DbName:   os.Getenv("POSTGRESQL_DB_NAME"),
-			Tz:       os.Getenv("POSTGRESQL_TZ"),
-			SslMode:  os.Getenv("POSTGRESQL_SSL_MODE"),
-			Port:     c.Int(os.Getenv("POSTGRESQL_SERVER_PORT")),
+			Host:                   os.Getenv("POSTGRESQL_HOST"),
+			User:                   os.Getenv("POSTGRESQL_USER"),
+			Password:               os.Getenv("POSTGRESQL_PASSWORD"),
+			DbName:                 os.Getenv("POSTGRESQL_DB_NAME"),
+			Tz:                     os.Getenv("POSTGRESQL_TZ"),
+			SslMode:                os.Getenv("POSTGRESQL_SSL_MODE"),
+			Port:                   c.Int(os.Getenv("POSTGRESQL_SERVER_PORT")),
+			SkipDefaultTransaction: c.Bool(os.Getenv("POSTGRESQL_SKIP_DEFAULT_TRANSACTION")),
 		},
 		Redis: Redis{
 			Host:           os.Getenv("REDIS_HOST"),
@@ -72,11 +74,19 @@ func (c *Config) Load() *Config {
 }
 
 func (c *Config) Int(value string) int {
-	num, err := strconv.Atoi(value)
+	toInt, err := strconv.Atoi(value)
 	if err != nil {
 		panic(err)
 	}
-	return num
+	return toInt
+}
+
+func (c *Config) Bool(value string) bool {
+	toBool, err := strconv.ParseBool(value)
+	if err != nil {
+		panic(err)
+	}
+	return toBool
 }
 
 func (c *Config) IsProd() bool {

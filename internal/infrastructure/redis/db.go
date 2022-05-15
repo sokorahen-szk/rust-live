@@ -21,6 +21,14 @@ type RedisSetData struct {
 	Ttl   *time.Duration
 }
 
+type RedisCacheEmptyError struct {
+	error
+}
+
+func (e *RedisCacheEmptyError) Is(err error) bool {
+	return true
+}
+
 func NewRedis(ctx context.Context, c *cfg.Config) *Redis {
 	addr := fmt.Sprintf(
 		"%s:%d",
@@ -53,10 +61,22 @@ func (redis *Redis) Set(ctx context.Context, setData *RedisSetData) error {
 
 func (redis *Redis) Get(ctx context.Context, key string) (string, error) {
 	val, err := redis.db.Get(ctx, key).Result()
+
+	if err != nil && redis.isCacheEmpty(err) {
+		return "", RedisCacheEmptyError{err}
+	}
+
 	return val, err
 }
 
 func (redis *Redis) Truncate() error {
 	statusCmd := redis.db.FlushAll(redis.ctx)
 	return statusCmd.Err()
+}
+
+func (redis *Redis) isCacheEmpty(err error) bool {
+	if err.Error() == "redis: nil" {
+		return true
+	}
+	return false
 }

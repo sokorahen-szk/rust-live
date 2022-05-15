@@ -6,6 +6,7 @@ import (
 	cfg "github.com/sokorahen-szk/rust-live/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type PostgreSql struct {
@@ -23,7 +24,9 @@ func NewPostgreSQL(c *cfg.Config) *PostgreSql {
 		c.PostgreSql.SslMode,
 	)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		SkipDefaultTransaction: c.PostgreSql.SkipDefaultTransaction,
+	})
 	if err != nil {
 		panic(err)
 	}
@@ -51,8 +54,8 @@ func (ps *PostgreSql) Get(value interface{}, query interface{}, args ...interfac
 	return nil
 }
 
-func (ps *PostgreSql) Update(value interface{}) error {
-	resultTx := ps.db.Save(value)
+func (ps *PostgreSql) Update(value interface{}, updateValues interface{}) error {
+	resultTx := ps.db.Model(value).Clauses(clause.Returning{}).Updates(updateValues)
 	if resultTx.Error != nil {
 		return resultTx.Error
 	}

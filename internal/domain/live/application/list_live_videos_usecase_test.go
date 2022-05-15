@@ -28,7 +28,7 @@ func Test_ListLiveVideosUsecase_Handle(t *testing.T) {
 		}
 		for _, p := range tests {
 
-			input := list.NewListLiveVideosInput(p.arg)
+			input := list.NewListLiveVideoInput(p.arg)
 
 			t.Run(p.name, func(t *testing.T) {
 				res, err := listLiveUsecase.Handle(ctx, input)
@@ -44,7 +44,7 @@ func Test_ListLiveVideosUsecase_Handle(t *testing.T) {
 		ctxWithError := context.WithValue(ctx, "error", "error")
 
 		listLiveUsecase := NewInjectListLiveVideosUsecase(ctx)
-		input := list.NewListLiveVideosInput(searchKeywords)
+		input := list.NewListLiveVideoInput(searchKeywords)
 
 		res, err := listLiveUsecase.Handle(ctxWithError, input)
 		a.Nil(res)

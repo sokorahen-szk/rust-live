@@ -51,7 +51,7 @@ func (mr *MockLiveVideoRepositoryInterfaceMockRecorder) Create(arg0, arg1 interf
 }
 
 // List mocks base method.
-func (m *MockLiveVideoRepositoryInterface) List(arg0 context.Context, arg1 *list.ListLiveVideosInput) ([]*entity.LiveVideo, error) {
+func (m *MockLiveVideoRepositoryInterface) List(arg0 context.Context, arg1 *list.ListLiveVideoInput) ([]*entity.LiveVideo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "List", arg0, arg1)
 	ret0, _ := ret[0].([]*entity.LiveVideo)
