@@ -79,7 +79,7 @@ func (usecase updateLiveVideosUsecase) filteredEndedVideoIds(archiveVideos []*en
 	for _, archiveVideo := range archiveVideos {
 		isLive := false
 		for _, liveVideo := range liveVideos {
-			if archiveVideo.GetId() == liveVideo.GetId() {
+			if *archiveVideo.GetId() == *liveVideo.GetId() {
 				isLive = true
 				break
 			}

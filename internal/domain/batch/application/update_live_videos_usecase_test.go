@@ -41,8 +41,8 @@ func Test_UpdateLiveVideosUsecase_Handle(t *testing.T) {
 		postgresql.Truncate([]string{"archive_videos"})
 		redis.Truncate()
 
-		in := mockInput.NewMockArchiveVideoInput(1, url, platformTwitch, videoStatusStreaming, startedDatetime, nil)
-		err := archiveVideoRepository.Create(ctx, in)
+		mockLiveVideoIn := mockInput.NewMockArchiveVideoInput(1, url, platformTwitch, videoStatusStreaming, startedDatetime, nil)
+		err := archiveVideoRepository.Create(ctx, mockLiveVideoIn)
 		a.NoError(err)
 
 		usecase := NewUpdateLiveVideosUsecase(
@@ -53,17 +53,38 @@ func Test_UpdateLiveVideosUsecase_Handle(t *testing.T) {
 
 		err = usecase.Handle(ctx)
 		a.NoError(err)
+
+		searchBroadcastId := entity.NewVideoBroadcastId(mockLiveVideoIn.BroadcastId)
+		actualArchiveVideo, err := archiveVideoRepository.GetByBroadcastId(ctx, searchBroadcastId)
+		a.NoError(err)
+		a.Equal(entity.VideoStatusEnded.Int(), actualArchiveVideo.GetStatus().Int())
+		a.Equal("2022-01-01T15:00:00Z", actualArchiveVideo.GetEndedDatetime().RFC3339())
 	})
 	t.Run("正常系/archive_videos・live_videosに動画情報がある場合、statusを変更しない", func(t *testing.T) {
 		postgresql.Truncate([]string{"archive_videos"})
 		redis.Truncate()
 
-		mockLiveVideoIn := mockInput.NewMockArchiveVideoInput(1, url, platformTwitch, videoStatusStreaming, startedDatetime, nil)
+		mockLiveVideoIn := mockInput.NewMockArchiveVideoInput(2, url, platformTwitch, videoStatusStreaming, startedDatetime, nil)
 		err := archiveVideoRepository.Create(ctx, mockLiveVideoIn)
 		a.NoError(err)
 
 		liveVideo := mockEntity.NewMockLiveVideo(mockLiveVideoIn.Id)
 		err = liveVideoRepository.Create(ctx, []*entity.LiveVideo{liveVideo})
 		a.NoError(err)
+
+		usecase := NewUpdateLiveVideosUsecase(
+			liveVideoRepository,
+			archiveVideoRepository,
+			now.TimeFunc(),
+		)
+
+		err = usecase.Handle(ctx)
+		a.NoError(err)
+
+		searchBroadcastId := entity.NewVideoBroadcastId(mockLiveVideoIn.BroadcastId)
+		actualArchiveVideo, err := archiveVideoRepository.GetByBroadcastId(ctx, searchBroadcastId)
+		a.NoError(err)
+		a.Equal(entity.VideoStatusStreaming.Int(), actualArchiveVideo.GetStatus().Int())
+		a.Nil(actualArchiveVideo.GetEndedDatetime())
 	})
 }
