@@ -24,17 +24,17 @@ enum VideoStatus {
 
 message ListLiveVideosRequest {
     string search_keywords = 1;                 // 検索キーワード(タイトル/配信者の検索可)
-    Sort sort = 2;                              // ソートキー(デフォルト: 0)
-    int32 page = 3;                             // 現在ページ
-    int32 limit = 4;                            // 取得する件数(デフォルト: 10)
+    repeated VideoPlatform video_platforms = 2; // 配信プラットフォーム
+    Sort sort = 3;                              // ソートキー(デフォルト: 0)
+    int32 page = 4;                             // 現在ページ
+    int32 limit = 5;                            // 取得する件数(デフォルト: 10)
 
     enum Sort {
         SORT_UNKNOWN = 0;                       // ソートキー未設定
-        SORT_PLATFORM = 1;                      // 配信プラットフォームでソートする
-        SORT_VIEWER_ASC = 2;                    // 視聴者数が少ない順に並べる
-        SORT_VIEWER_DESC = 3;                   // 視聴者数が多い順に並べる
-        SORT_STARTED_DATETIME_ASC = 4;          // 配信開始日時が新しい順に並べる
-        SORT_STARTED_DATETIME_DESC = 5;         // 配信開始日時が古い順に並べる
+        SORT_VIEWER_ASC = 1;                    // 視聴者数が少ない順に並べる
+        SORT_VIEWER_DESC = 2;                   // 視聴者数が多い順に並べる
+        SORT_STARTED_DATETIME_ASC = 3;          // 配信開始日時が新しい順に並べる
+        SORT_STARTED_DATETIME_DESC = 4;         // 配信開始日時が古い順に並べる
     }
 }
 
@@ -45,16 +45,16 @@ message ListLiveVideosResponse {
 
 message ListArchiveVideosRequest {
     string search_keywords = 1;                 // 検索キーワード(タイトル/配信者の検索可)
-    Sort sort = 2;                              // ソートキー(デフォルト: 0)
-    int32 page = 3;                             // 現在ページ
-    int32 limit = 4;                            // 取得する件数(デフォルト: 10)
+    repeated VideoPlatform video_platforms = 2; // 配信プラットフォーム
+    repeated VideoStatus video_statuses = 3;    // 配信動画ステータス
+    Sort sort = 4;                              // ソートキー(デフォルト: 0)
+    int32 page = 5;                             // 現在ページ
+    int32 limit = 6;                            // 取得する件数(デフォルト: 10)
 
     enum Sort {
         SORT_UNKNOWN = 0;                       // ソートキー未設定
-        SORT_STATUS = 1;                        // ステータスでソートする
-        SORT_PLATFORM = 2;                      // 配信プラットフォームでソートする
-        SORT_STARTED_DATETIME_ASC = 3;          // 配信開始日時が新しい順に並べる
-        SORT_STARTED_DATETIME_DESC = 4;         // 配信開始日時が古い順に並べる
+        SORT_STARTED_DATETIME_ASC = 1;          // 配信開始日時が新しい順に並べる
+        SORT_STARTED_DATETIME_DESC = 2;         // 配信開始日時が古い順に並べる
     }
 }
 
