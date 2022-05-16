@@ -50,11 +50,18 @@ func Test_LiveVideoRepository_Create(t *testing.T) {
 }
 
 func Test_LiveVideoRepository_List(t *testing.T) {
+	var (
+		correctSort  *entity.LiveVideoSortKey = entity.NewLiveVideoSortKey(0)
+		correctPage  int                      = 1
+		correctLimit int                      = 10
+	)
+
 	a := assert.New(t)
 	ctx := context.Background()
 	c := cfg.NewConfig()
 	redis := redis.NewRedis(ctx, c)
 	liveVideoRepository := NewLiveVideoRepository(redis)
+
 	t.Run("SearchKeywords", func(t *testing.T) {
 		redis.Truncate()
 
@@ -77,7 +84,12 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 			{"検索キーワードを指定して、一致するデータが1件の場合、1件を返す.", "太郎1", 1},
 		}
 		for _, p := range tests {
-			input := list.NewListLiveVideoInput(p.arg)
+			input := list.NewListLiveVideoInput(
+				p.arg,
+				correctSort,
+				correctPage,
+				correctLimit,
+			)
 
 			t.Run(p.name, func(t *testing.T) {
 				actual, err := liveVideoRepository.List(ctx, input)

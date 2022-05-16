@@ -7,6 +7,7 @@ import (
 
 	"github.com/sokorahen-szk/rust-live/internal/adapter/controller/form"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/application"
+	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
 	"github.com/sokorahen-szk/rust-live/internal/usecase/live/list"
 )
 
@@ -21,6 +22,14 @@ func (s *LiveController) ListLiveVideos(ctx context.Context, req *pb.ListLiveVid
 		return nil, err
 	}
 
+	sortKey := entity.NewLiveVideoSortKey(formData.GetSort())
+	input := list.NewListLiveVideoInput(
+		formData.GetSearchKeywords(),
+		sortKey,
+		formData.GetPage(),
+		formData.GetLimit(),
+	)
+
 	usecase := application.NewInjectListLiveVideosUsecase(ctx)
-	return usecase.Handle(ctx, list.NewListLiveVideoInput(formData.GetSearchKeywords()))
+	return usecase.Handle(ctx, input)
 }

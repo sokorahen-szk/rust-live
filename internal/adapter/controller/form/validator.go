@@ -9,6 +9,7 @@ type formValidator struct{}
 
 const (
 	isListLiveVideoSortValidateName string = "is_list_live_video_sort"
+	isVideoPlatformValidateName     string = "is_video_platform"
 )
 
 func Validate(form interface{}) error {
@@ -30,6 +31,11 @@ func (fv *formValidator) registerValidations(validate *validator.Validate) error
 		return err
 	}
 
+	err = validate.RegisterValidation(isVideoPlatformValidateName, fv.isVideoPlatform)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -37,11 +43,23 @@ func (fv *formValidator) isListLiveVideoSort(fl validator.FieldLevel) bool {
 	value := fl.Field().Int()
 	switch pb.ListLiveVideosRequest_Sort(value) {
 	case pb.ListLiveVideosRequest_SORT_UNKNOWN,
-		pb.ListLiveVideosRequest_SORT_PLATFORM,
 		pb.ListLiveVideosRequest_SORT_VIEWER_ASC,
 		pb.ListLiveVideosRequest_SORT_VIEWER_DESC,
 		pb.ListLiveVideosRequest_SORT_STARTED_DATETIME_ASC,
 		pb.ListLiveVideosRequest_SORT_STARTED_DATETIME_DESC:
+
+		return true
+	}
+
+	return false
+}
+
+func (fv *formValidator) isVideoPlatform(fl validator.FieldLevel) bool {
+	value := fl.Field().Int()
+	switch pb.VideoPlatform(value) {
+	case pb.VideoPlatform_VIDEO_PLATFORM_UNKNOWN,
+		pb.VideoPlatform_TWITCH,
+		pb.VideoPlatform_YOUTUBE:
 
 		return true
 	}

@@ -32,6 +32,7 @@ func Test_FetchLiveVideosUsecase_Handle(t *testing.T) {
 	liveVideoRepository := redisLive.NewLiveVideoRepository(redis)
 
 	now := common.NewDatetime("2022-02-02T00:01:32Z")
+	sortKey := entity.NewLiveVideoSortKey(0)
 
 	listBroadcastOptions := []batch.RequestParam{
 		{Key: "language", Value: "ja"},
@@ -122,7 +123,7 @@ func Test_FetchLiveVideosUsecase_Handle(t *testing.T) {
 		a.Equal("2022-02-02T00:00:00Z", actualArchiveVideo.GetStartedDatetime().RFC3339())
 		a.Nil(actualArchiveVideo.GetEndedDatetime())
 
-		listInput := list.NewListLiveVideoInput("")
+		listInput := list.NewListLiveVideoInput("", sortKey, 1, 0)
 		actualLiveVideos, err := liveVideoRepository.List(ctx, listInput)
 		a.NoError(err)
 		a.Len(actualLiveVideos, 1)

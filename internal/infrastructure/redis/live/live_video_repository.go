@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"sort"
 	"strings"
 
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
@@ -75,5 +76,33 @@ func (repository *liveVideoRepository) listFilter(liveVideos []*entity.LiveVideo
 		filtered = append(filtered, liveVideo)
 	}
 
-	return filtered
+	sorted := repository.sort(filtered, listInput.SortKey())
+	return sorted
+}
+
+func (repository *liveVideoRepository) sort(liveVideos []*entity.LiveVideo, sortKey *entity.LiveVideoSortKey) []*entity.LiveVideo {
+	if sortKey == nil {
+		return liveVideos
+	}
+
+	switch *sortKey {
+	case entity.LiveVideoViewerAsc:
+		sort.SliceStable(liveVideos, func(i, j int) bool {
+			return liveVideos[i].Viewer.Int() < liveVideos[j].Viewer.Int()
+		})
+	case entity.LiveVideoViewerDesc:
+		sort.SliceStable(liveVideos, func(i, j int) bool {
+			return liveVideos[i].Viewer.Int() > liveVideos[j].Viewer.Int()
+		})
+	case entity.LiveVideoStartedDatetimeAsc:
+		sort.SliceStable(liveVideos, func(i, j int) bool {
+			return liveVideos[i].StartedDatetime.RFC3339() < liveVideos[j].StartedDatetime.RFC3339()
+		})
+	case entity.LiveVideoStartedDatetimeDesc:
+		sort.SliceStable(liveVideos, func(i, j int) bool {
+			return liveVideos[i].StartedDatetime.RFC3339() > liveVideos[j].StartedDatetime.RFC3339()
+		})
+	}
+
+	return liveVideos
 }
