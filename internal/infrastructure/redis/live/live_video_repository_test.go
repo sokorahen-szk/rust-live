@@ -103,10 +103,13 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 
 		liveVideo := mockEntity.NewMockLiveVideo(1)
 		liveVideo.Viewer = entity.NewVideoViewer(99)
+		liveVideo.StartedDatetime = entity.NewStartedDatetime("2022-01-01T00:00:01Z")
 		liveVideo2 := mockEntity.NewMockLiveVideo(2)
 		liveVideo2.Viewer = entity.NewVideoViewer(101)
+		liveVideo2.StartedDatetime = entity.NewStartedDatetime("2021-12-31T23:59:59Z")
 		liveVideo3 := mockEntity.NewMockLiveVideo(3)
 		liveVideo3.Viewer = entity.NewVideoViewer(100)
+		liveVideo3.StartedDatetime = entity.NewStartedDatetime("2022-01-01T00:00:00Z")
 
 		liveVideos := []*entity.LiveVideo{
 			liveVideo,
@@ -118,27 +121,106 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 		a.NoError(err)
 
 		t.Run("viewerで昇順検索が正しくできること", func(t *testing.T) {
-			listInput := list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(1), 1, 0)
+			listInput := list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(entity.LiveVideoViewerAsc), 1, 0)
 			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
 			a.NoError(err)
 			a.Equal(liveVideo.GetViewer(), actualListVideos[0].GetViewer())
-			a.Equal(liveVideo3.GetViewer(), actualListVideos[2].GetViewer())
-			a.Equal(liveVideo2.GetViewer(), actualListVideos[1].GetViewer())
+			a.Equal(liveVideo3.GetViewer(), actualListVideos[1].GetViewer())
+			a.Equal(liveVideo2.GetViewer(), actualListVideos[2].GetViewer())
 		})
 		t.Run("viewerで降順検索が正しくできること", func(t *testing.T) {
-			listInput := list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(2), 1, 0)
+			listInput := list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(entity.LiveVideoViewerDesc), 1, 0)
 			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
 			a.NoError(err)
-			a.Equal(liveVideo2.GetViewer(), actualListVideos[1].GetViewer())
-			a.Equal(liveVideo3.GetViewer(), actualListVideos[2].GetViewer())
-			a.Equal(liveVideo.GetViewer(), actualListVideos[0].GetViewer())
+			a.Equal(liveVideo2.GetViewer(), actualListVideos[0].GetViewer())
+			a.Equal(liveVideo3.GetViewer(), actualListVideos[1].GetViewer())
+			a.Equal(liveVideo.GetViewer(), actualListVideos[2].GetViewer())
+		})
+		t.Run("startedDatetimeで昇順検索が正しくできること", func(t *testing.T) {
+			listInput := list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(entity.LiveVideoStartedDatetimeAsc), 1, 0)
+			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
+			a.NoError(err)
+			a.Equal(liveVideo2.GetStartedDatetime(), actualListVideos[0].GetStartedDatetime())
+			a.Equal(liveVideo3.GetStartedDatetime(), actualListVideos[1].GetStartedDatetime())
+			a.Equal(liveVideo.GetStartedDatetime(), actualListVideos[2].GetStartedDatetime())
+		})
+		t.Run("startedDatetimeで降順検索が正しくできること", func(t *testing.T) {
+			listInput := list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(entity.LiveVideoStartedDatetimeDesc), 1, 0)
+			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
+			a.NoError(err)
+			a.Equal(liveVideo.GetStartedDatetime(), actualListVideos[0].GetStartedDatetime())
+			a.Equal(liveVideo3.GetStartedDatetime(), actualListVideos[1].GetStartedDatetime())
+			a.Equal(liveVideo2.GetStartedDatetime(), actualListVideos[2].GetStartedDatetime())
 		})
 	})
 	t.Run("Pageでページ送りができ、意図したページのデータが取得できること", func(t *testing.T) {
-		// TODO:
+		redis.Truncate()
+
+		liveVideo := mockEntity.NewMockLiveVideo(1)
+		liveVideo2 := mockEntity.NewMockLiveVideo(2)
+		liveVideo3 := mockEntity.NewMockLiveVideo(3)
+
+		liveVideos := []*entity.LiveVideo{
+			liveVideo,
+			liveVideo2,
+			liveVideo3,
+		}
+
+		err := liveVideoRepository.Create(ctx, liveVideos)
+		a.NoError(err)
+
+		t.Run("3件中2件毎に取得した場合、2ページ分のデータが取得できること", func(t *testing.T) {
+			listInput := list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(1), 1, 2)
+			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
+			a.NoError(err)
+			a.Len(actualListVideos, 2)
+			a.Equal(liveVideo.GetId(), actualListVideos[0].GetId())
+			a.Equal(liveVideo2.GetId(), actualListVideos[1].GetId())
+
+			listInput = list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(1), 2, 2)
+			actualListVideos, err = liveVideoRepository.List(ctx, listInput)
+			a.NoError(err)
+			a.Len(actualListVideos, 1)
+			a.Equal(liveVideo3.GetId(), actualListVideos[0].GetId())
+		})
+		t.Run("3件中3件毎に取得した場合、1ページ分のデータが取得できること", func(t *testing.T) {
+			listInput := list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(1), 1, 3)
+			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
+			a.NoError(err)
+			a.Len(actualListVideos, 3)
+			a.Equal(liveVideo.GetId(), actualListVideos[0].GetId())
+			a.Equal(liveVideo2.GetId(), actualListVideos[1].GetId())
+			a.Equal(liveVideo3.GetId(), actualListVideos[2].GetId())
+
+			listInput = list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(1), 2, 3)
+			actualListVideos, err = liveVideoRepository.List(ctx, listInput)
+			a.NoError(err)
+			a.Len(actualListVideos, 0)
+		})
 	})
 	t.Run("Limitで指定した件数でデータが取得できること", func(t *testing.T) {
-		// TODO:
+		redis.Truncate()
+
+		liveVideo := mockEntity.NewMockLiveVideo(1)
+		liveVideo2 := mockEntity.NewMockLiveVideo(2)
+		liveVideo3 := mockEntity.NewMockLiveVideo(3)
+
+		liveVideos := []*entity.LiveVideo{
+			liveVideo,
+			liveVideo2,
+			liveVideo3,
+		}
+
+		err := liveVideoRepository.Create(ctx, liveVideos)
+		a.NoError(err)
+
+		listInput := list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(1), 1, 3)
+		actualListVideos, err := liveVideoRepository.List(ctx, listInput)
+		a.NoError(err)
+		a.Len(actualListVideos, 3)
+		a.Equal(liveVideo.GetId(), actualListVideos[0].GetId())
+		a.Equal(liveVideo2.GetId(), actualListVideos[1].GetId())
+		a.Equal(liveVideo3.GetId(), actualListVideos[2].GetId())
 	})
 	t.Run("redis内にデータが1件も存在しない場合、空配列を返すこと", func(t *testing.T) {
 		redis.Truncate()

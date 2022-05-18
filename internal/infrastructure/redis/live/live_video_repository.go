@@ -120,5 +120,9 @@ func (repository *liveVideoRepository) paginate(listVideos []*entity.LiveVideo, 
 	first := (page - 1) * limit
 	end := page * limit
 
+	if len(listVideos) < end {
+		return listVideos[first:]
+	}
+
 	return listVideos[first:end]
 }

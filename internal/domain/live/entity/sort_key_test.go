@@ -2,21 +2,19 @@ package entity
 
 import (
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestNewLiveVideoSortKey(t *testing.T) {
 	tests := []struct {
 		name   string
-		arg    int
+		arg    LiveVideoSortKey
 		result bool
 	}{
 		{"ソートキー未設定", 0, false},
-		{"LiveVideoViewerAsc", 1, true},
-		{"LiveVideoViewerDesc", 2, true},
-		{"LiveVideoStartedDatetimeAsc", 3, true},
-		{"LiveVideoStartedDatetimeDesc", 4, true},
+		{"LiveVideoViewerAsc", LiveVideoViewerAsc, true},
+		{"LiveVideoViewerDesc", LiveVideoViewerDesc, true},
+		{"LiveVideoStartedDatetimeAsc", LiveVideoStartedDatetimeAsc, true},
+		{"LiveVideoStartedDatetimeDesc", LiveVideoStartedDatetimeDesc, true},
 		{"不明なソートキー設定", 5, false},
 	}
 	for idx, p := range tests {
@@ -26,8 +24,6 @@ func TestNewLiveVideoSortKey(t *testing.T) {
 				t.Errorf("pattern %d: want %t, name = %s", idx, p.result, p.name)
 				t.Failed()
 			}
-
-			assert.Equal(t, p.arg, videoSortKey.Int())
 		})
 	}
 }

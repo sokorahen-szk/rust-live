@@ -31,7 +31,7 @@ func (s *LiveController) ListLiveVideos(ctx context.Context, req *pb.ListLiveVid
 		limit = listLiveVideoRequestDefaultLimit
 	}
 
-	sortKey := entity.NewLiveVideoSortKey(formData.GetSort())
+	sortKey := entity.NewLiveVideoSortKeyFromInt(formData.GetSort())
 	input := list.NewListLiveVideoInput(
 		formData.GetSearchKeywords(),
 		sortKey,
