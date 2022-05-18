@@ -77,7 +77,7 @@ func (repository *liveVideoRepository) listFilter(liveVideos []*entity.LiveVideo
 	}
 
 	sorted := repository.sort(filtered, listInput.SortKey())
-	return sorted
+	return repository.paginate(sorted, listInput.Page(), listInput.Limit())
 }
 
 func (repository *liveVideoRepository) sort(liveVideos []*entity.LiveVideo, sortKey *entity.LiveVideoSortKey) []*entity.LiveVideo {
@@ -105,4 +105,20 @@ func (repository *liveVideoRepository) sort(liveVideos []*entity.LiveVideo, sort
 	}
 
 	return liveVideos
+}
+
+func (repository *liveVideoRepository) paginate(listVideos []*entity.LiveVideo, page int, limit int) []*entity.LiveVideo {
+	if page == 0 || limit == 0 {
+		return listVideos
+	}
+
+	// 全データがリミットより小さいときは、そのまま返す.
+	if len(listVideos) < limit {
+		return listVideos
+	}
+
+	first := (page - 1) * limit
+	end := page * limit
+
+	return listVideos[first:end]
 }

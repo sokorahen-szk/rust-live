@@ -15,6 +15,10 @@ type LiveController struct {
 	pb.UnimplementedLiveServiceServer
 }
 
+const (
+	listLiveVideoRequestDefaultLimit int = 10
+)
+
 func (s *LiveController) ListLiveVideos(ctx context.Context, req *pb.ListLiveVideosRequest) (*pb.ListLiveVideosResponse, error) {
 	formData := form.NewListLiveVideosForm(req)
 	err := form.Validate(formData)
@@ -22,12 +26,17 @@ func (s *LiveController) ListLiveVideos(ctx context.Context, req *pb.ListLiveVid
 		return nil, err
 	}
 
+	var limit int
+	if formData.GetLimit() == 0 {
+		limit = listLiveVideoRequestDefaultLimit
+	}
+
 	sortKey := entity.NewLiveVideoSortKey(formData.GetSort())
 	input := list.NewListLiveVideoInput(
 		formData.GetSearchKeywords(),
 		sortKey,
 		formData.GetPage(),
-		formData.GetLimit(),
+		limit,
 	)
 
 	usecase := application.NewInjectListLiveVideosUsecase(ctx)

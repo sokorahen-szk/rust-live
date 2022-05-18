@@ -62,7 +62,7 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 	redis := redis.NewRedis(ctx, c)
 	liveVideoRepository := NewLiveVideoRepository(redis)
 
-	t.Run("SearchKeywords", func(t *testing.T) {
+	t.Run("SearchKeywordsで検索でき、データが取得できること", func(t *testing.T) {
 		redis.Truncate()
 
 		liveVideos := []*entity.LiveVideo{
@@ -97,6 +97,48 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 				a.NoError(err)
 			})
 		}
+	})
+	t.Run("Sortでデータの順番が変わり、意図したデータの並びで取得できること", func(t *testing.T) {
+		redis.Truncate()
+
+		liveVideo := mockEntity.NewMockLiveVideo(1)
+		liveVideo.Viewer = entity.NewVideoViewer(99)
+		liveVideo2 := mockEntity.NewMockLiveVideo(2)
+		liveVideo2.Viewer = entity.NewVideoViewer(101)
+		liveVideo3 := mockEntity.NewMockLiveVideo(3)
+		liveVideo3.Viewer = entity.NewVideoViewer(100)
+
+		liveVideos := []*entity.LiveVideo{
+			liveVideo,
+			liveVideo2,
+			liveVideo3,
+		}
+
+		err := liveVideoRepository.Create(ctx, liveVideos)
+		a.NoError(err)
+
+		t.Run("viewerで昇順検索が正しくできること", func(t *testing.T) {
+			listInput := list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(1), 1, 0)
+			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
+			a.NoError(err)
+			a.Equal(liveVideo.GetViewer(), actualListVideos[0].GetViewer())
+			a.Equal(liveVideo3.GetViewer(), actualListVideos[2].GetViewer())
+			a.Equal(liveVideo2.GetViewer(), actualListVideos[1].GetViewer())
+		})
+		t.Run("viewerで降順検索が正しくできること", func(t *testing.T) {
+			listInput := list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(2), 1, 0)
+			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
+			a.NoError(err)
+			a.Equal(liveVideo2.GetViewer(), actualListVideos[1].GetViewer())
+			a.Equal(liveVideo3.GetViewer(), actualListVideos[2].GetViewer())
+			a.Equal(liveVideo.GetViewer(), actualListVideos[0].GetViewer())
+		})
+	})
+	t.Run("Pageでページ送りができ、意図したページのデータが取得できること", func(t *testing.T) {
+		// TODO:
+	})
+	t.Run("Limitで指定した件数でデータが取得できること", func(t *testing.T) {
+		// TODO:
 	})
 	t.Run("redis内にデータが1件も存在しない場合、空配列を返すこと", func(t *testing.T) {
 		redis.Truncate()
