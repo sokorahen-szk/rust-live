@@ -54,6 +54,10 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 		correctSort  *entity.LiveVideoSortKey = entity.NewLiveVideoSortKey(0)
 		correctPage  int                      = 1
 		correctLimit int                      = 10
+
+		correctPlatforms []*entity.Platform = []*entity.Platform{
+			entity.NewPlatform(entity.PlatformTwitch),
+		}
 	)
 
 	a := assert.New(t)
@@ -86,6 +90,7 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 		for _, p := range tests {
 			input := list.NewListLiveVideoInput(
 				p.arg,
+				correctPlatforms,
 				correctSort,
 				correctPage,
 				correctLimit,
@@ -121,7 +126,7 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 		a.NoError(err)
 
 		t.Run("viewerで昇順検索が正しくできること", func(t *testing.T) {
-			listInput := list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(entity.LiveVideoViewerAsc), 1, 0)
+			listInput := list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(entity.LiveVideoViewerAsc), 1, 0)
 			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
 			a.NoError(err)
 			a.Equal(liveVideo.GetViewer(), actualListVideos[0].GetViewer())
@@ -129,7 +134,7 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 			a.Equal(liveVideo2.GetViewer(), actualListVideos[2].GetViewer())
 		})
 		t.Run("viewerで降順検索が正しくできること", func(t *testing.T) {
-			listInput := list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(entity.LiveVideoViewerDesc), 1, 0)
+			listInput := list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(entity.LiveVideoViewerDesc), 1, 0)
 			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
 			a.NoError(err)
 			a.Equal(liveVideo2.GetViewer(), actualListVideos[0].GetViewer())
@@ -137,7 +142,7 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 			a.Equal(liveVideo.GetViewer(), actualListVideos[2].GetViewer())
 		})
 		t.Run("startedDatetimeで昇順検索が正しくできること", func(t *testing.T) {
-			listInput := list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(entity.LiveVideoStartedDatetimeAsc), 1, 0)
+			listInput := list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(entity.LiveVideoStartedDatetimeAsc), 1, 0)
 			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
 			a.NoError(err)
 			a.Equal(liveVideo2.GetStartedDatetime(), actualListVideos[0].GetStartedDatetime())
@@ -145,7 +150,7 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 			a.Equal(liveVideo.GetStartedDatetime(), actualListVideos[2].GetStartedDatetime())
 		})
 		t.Run("startedDatetimeで降順検索が正しくできること", func(t *testing.T) {
-			listInput := list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(entity.LiveVideoStartedDatetimeDesc), 1, 0)
+			listInput := list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(entity.LiveVideoStartedDatetimeDesc), 1, 0)
 			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
 			a.NoError(err)
 			a.Equal(liveVideo.GetStartedDatetime(), actualListVideos[0].GetStartedDatetime())
@@ -170,21 +175,21 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 		a.NoError(err)
 
 		t.Run("3件中2件毎に取得した場合、2ページ分のデータが取得できること", func(t *testing.T) {
-			listInput := list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(1), 1, 2)
+			listInput := list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(1), 1, 2)
 			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
 			a.NoError(err)
 			a.Len(actualListVideos, 2)
 			a.Equal(liveVideo.GetId(), actualListVideos[0].GetId())
 			a.Equal(liveVideo2.GetId(), actualListVideos[1].GetId())
 
-			listInput = list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(1), 2, 2)
+			listInput = list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(1), 2, 2)
 			actualListVideos, err = liveVideoRepository.List(ctx, listInput)
 			a.NoError(err)
 			a.Len(actualListVideos, 1)
 			a.Equal(liveVideo3.GetId(), actualListVideos[0].GetId())
 		})
 		t.Run("3件中3件毎に取得した場合、1ページ分のデータが取得できること", func(t *testing.T) {
-			listInput := list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(1), 1, 3)
+			listInput := list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(1), 1, 3)
 			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
 			a.NoError(err)
 			a.Len(actualListVideos, 3)
@@ -192,7 +197,7 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 			a.Equal(liveVideo2.GetId(), actualListVideos[1].GetId())
 			a.Equal(liveVideo3.GetId(), actualListVideos[2].GetId())
 
-			listInput = list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(1), 2, 3)
+			listInput = list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(1), 2, 3)
 			actualListVideos, err = liveVideoRepository.List(ctx, listInput)
 			a.NoError(err)
 			a.Len(actualListVideos, 0)
@@ -214,7 +219,7 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 		err := liveVideoRepository.Create(ctx, liveVideos)
 		a.NoError(err)
 
-		listInput := list.NewListLiveVideoInput("", entity.NewLiveVideoSortKey(1), 1, 3)
+		listInput := list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(1), 1, 3)
 		actualListVideos, err := liveVideoRepository.List(ctx, listInput)
 		a.NoError(err)
 		a.Len(actualListVideos, 3)
@@ -222,6 +227,11 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 		a.Equal(liveVideo2.GetId(), actualListVideos[1].GetId())
 		a.Equal(liveVideo3.GetId(), actualListVideos[2].GetId())
 	})
+
+	t.Run("Platformsで検索するプラットフォームを指定し、意図したデータが返されること", func(t *testing.T) {
+		// TODO:
+	})
+
 	t.Run("redis内にデータが1件も存在しない場合、空配列を返すこと", func(t *testing.T) {
 		redis.Truncate()
 

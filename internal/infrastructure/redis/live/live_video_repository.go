@@ -73,11 +73,30 @@ func (repository *liveVideoRepository) listFilter(liveVideos []*entity.LiveVideo
 			continue
 		}
 
+		if !repository.isTargetPlatform(liveVideo, listInput.Platforms()) {
+			continue
+		}
+
 		filtered = append(filtered, liveVideo)
 	}
 
 	sorted := repository.sort(filtered, listInput.SortKey())
 	return repository.paginate(sorted, listInput.Page(), listInput.Limit())
+}
+
+func (repository *liveVideoRepository) isTargetPlatform(liveVideo *entity.LiveVideo,
+	platforms []*entity.Platform) bool {
+	if platforms == nil || len(platforms) < 1 {
+		return true
+	}
+
+	for _, platform := range platforms {
+		if *platform == *liveVideo.GetPlatform() {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (repository *liveVideoRepository) sort(liveVideos []*entity.LiveVideo, sortKey *entity.LiveVideoSortKey) []*entity.LiveVideo {

@@ -32,8 +32,14 @@ func (s *LiveController) ListLiveVideos(ctx context.Context, req *pb.ListLiveVid
 	}
 
 	sortKey := entity.NewLiveVideoSortKeyFromInt(formData.GetSort())
+
+	platforms := make([]*entity.Platform, len(formData.GetPlatforms()))
+	for _, platform := range formData.GetPlatforms() {
+		platforms = append(platforms, entity.NewPlatformFromInt(platform))
+	}
 	input := list.NewListLiveVideoInput(
 		formData.GetSearchKeywords(),
+		platforms,
 		sortKey,
 		formData.GetPage(),
 		limit,

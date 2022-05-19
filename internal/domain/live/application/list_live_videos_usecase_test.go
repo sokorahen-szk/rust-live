@@ -15,6 +15,7 @@ func Test_ListLiveVideosUsecase_Handle(t *testing.T) {
 	a := assert.New(t)
 	ctx := context.Background()
 
+	platforms := []*entity.Platform{}
 	listLiveUsecase := NewInjectListLiveVideosUsecase(ctx)
 	sortKey := entity.NewLiveVideoSortKey(0)
 
@@ -30,7 +31,7 @@ func Test_ListLiveVideosUsecase_Handle(t *testing.T) {
 		}
 		for _, p := range tests {
 
-			input := list.NewListLiveVideoInput(p.arg, sortKey, 1, 0)
+			input := list.NewListLiveVideoInput(p.arg, platforms, sortKey, 1, 0)
 
 			t.Run(p.name, func(t *testing.T) {
 				res, err := listLiveUsecase.Handle(ctx, input)
@@ -46,7 +47,7 @@ func Test_ListLiveVideosUsecase_Handle(t *testing.T) {
 		ctxWithError := context.WithValue(ctx, "error", "error")
 
 		listLiveUsecase := NewInjectListLiveVideosUsecase(ctx)
-		input := list.NewListLiveVideoInput(searchKeywords, sortKey, 1, 0)
+		input := list.NewListLiveVideoInput(searchKeywords, platforms, sortKey, 1, 0)
 
 		res, err := listLiveUsecase.Handle(ctxWithError, input)
 		a.Nil(res)
