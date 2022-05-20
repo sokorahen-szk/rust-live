@@ -229,7 +229,40 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 	})
 
 	t.Run("Platformsで検索するプラットフォームを指定し、意図したデータが返されること", func(t *testing.T) {
-		// TODO:
+		redis.Truncate()
+
+		liveVideo := mockEntity.NewMockLiveVideo(1)
+		liveVideo2 := mockEntity.NewMockLiveVideo(2)
+		liveVideo3 := mockEntity.NewMockLiveVideo(3)
+		liveVideo3.Platform = entity.NewPlatform(entity.PlatformYoutube)
+
+		liveVideos := []*entity.LiveVideo{
+			liveVideo,
+			liveVideo2,
+			liveVideo3,
+		}
+
+		err := liveVideoRepository.Create(ctx, liveVideos)
+		a.NoError(err)
+
+		t.Run("プラットフォームをtwitchに指定し、2件取得できること", func(t *testing.T) {
+			listInput := list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(1), 1, 10)
+			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
+			a.NoError(err)
+			a.Len(actualListVideos, 2)
+			a.Equal(liveVideo.GetId(), actualListVideos[0].GetId())
+			a.Equal(liveVideo2.GetId(), actualListVideos[1].GetId())
+		})
+		t.Run("プラットフォームをyoutubeに指定し、1件取得できること", func(t *testing.T) {
+			youtubePlatform := []*entity.Platform{
+				entity.NewPlatform(entity.PlatformYoutube),
+			}
+			listInput := list.NewListLiveVideoInput("", youtubePlatform, entity.NewLiveVideoSortKey(1), 1, 10)
+			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
+			a.NoError(err)
+			a.Len(actualListVideos, 1)
+			a.Equal(liveVideo3.GetId(), actualListVideos[0].GetId())
+		})
 	})
 
 	t.Run("redis内にデータが1件も存在しない場合、空配列を返すこと", func(t *testing.T) {
