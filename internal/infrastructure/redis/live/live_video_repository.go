@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"sort"
 	"strings"
 
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
@@ -72,8 +73,75 @@ func (repository *liveVideoRepository) listFilter(liveVideos []*entity.LiveVideo
 			continue
 		}
 
+		if !repository.isTargetPlatform(liveVideo, listInput.Platforms()) {
+			continue
+		}
+
 		filtered = append(filtered, liveVideo)
 	}
 
-	return filtered
+	sorted := repository.sort(filtered, listInput.SortKey())
+	return repository.paginate(sorted, listInput.Page(), listInput.Limit())
+}
+
+func (repository *liveVideoRepository) isTargetPlatform(liveVideo *entity.LiveVideo,
+	platforms []*entity.Platform) bool {
+	if platforms == nil || len(platforms) < 1 {
+		return true
+	}
+
+	for _, platform := range platforms {
+		if *platform == *liveVideo.GetPlatform() {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (repository *liveVideoRepository) sort(liveVideos []*entity.LiveVideo, sortKey *entity.LiveVideoSortKey) []*entity.LiveVideo {
+	if sortKey == nil {
+		return liveVideos
+	}
+
+	switch *sortKey {
+	case entity.LiveVideoViewerAsc:
+		sort.SliceStable(liveVideos, func(i, j int) bool {
+			return liveVideos[i].Viewer.Int() < liveVideos[j].Viewer.Int()
+		})
+	case entity.LiveVideoViewerDesc:
+		sort.SliceStable(liveVideos, func(i, j int) bool {
+			return liveVideos[i].Viewer.Int() > liveVideos[j].Viewer.Int()
+		})
+	case entity.LiveVideoStartedDatetimeAsc:
+		sort.SliceStable(liveVideos, func(i, j int) bool {
+			return liveVideos[i].StartedDatetime.RFC3339() < liveVideos[j].StartedDatetime.RFC3339()
+		})
+	case entity.LiveVideoStartedDatetimeDesc:
+		sort.SliceStable(liveVideos, func(i, j int) bool {
+			return liveVideos[i].StartedDatetime.RFC3339() > liveVideos[j].StartedDatetime.RFC3339()
+		})
+	}
+
+	return liveVideos
+}
+
+func (repository *liveVideoRepository) paginate(listVideos []*entity.LiveVideo, page int, limit int) []*entity.LiveVideo {
+	if page == 0 || limit == 0 {
+		return listVideos
+	}
+
+	// 全データがリミットより小さいときは、そのまま返す.
+	if len(listVideos) < limit {
+		return listVideos
+	}
+
+	first := (page - 1) * limit
+	end := page * limit
+
+	if len(listVideos) < end {
+		return listVideos[first:]
+	}
+
+	return listVideos[first:end]
 }

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	pb "github.com/sokorahen-szk/rust-live/api/proto"
+	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
 	"github.com/sokorahen-szk/rust-live/internal/usecase/live/list"
 	"github.com/stretchr/testify/assert"
 )
@@ -14,7 +15,9 @@ func Test_ListLiveVideosUsecase_Handle(t *testing.T) {
 	a := assert.New(t)
 	ctx := context.Background()
 
+	platforms := []*entity.Platform{}
 	listLiveUsecase := NewInjectListLiveVideosUsecase(ctx)
+	sortKey := entity.NewLiveVideoSortKey(0)
 
 	t.Run("正常系/配信動画リスト取得", func(t *testing.T) {
 		tests := []struct {
@@ -28,7 +31,7 @@ func Test_ListLiveVideosUsecase_Handle(t *testing.T) {
 		}
 		for _, p := range tests {
 
-			input := list.NewListLiveVideoInput(p.arg)
+			input := list.NewListLiveVideoInput(p.arg, platforms, sortKey, 1, 0)
 
 			t.Run(p.name, func(t *testing.T) {
 				res, err := listLiveUsecase.Handle(ctx, input)
@@ -44,7 +47,7 @@ func Test_ListLiveVideosUsecase_Handle(t *testing.T) {
 		ctxWithError := context.WithValue(ctx, "error", "error")
 
 		listLiveUsecase := NewInjectListLiveVideosUsecase(ctx)
-		input := list.NewListLiveVideoInput(searchKeywords)
+		input := list.NewListLiveVideoInput(searchKeywords, platforms, sortKey, 1, 0)
 
 		res, err := listLiveUsecase.Handle(ctxWithError, input)
 		a.Nil(res)
