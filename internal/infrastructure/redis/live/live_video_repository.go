@@ -26,20 +26,9 @@ func NewLiveVideoRepository(conn *redis.Redis) repository.LiveVideoRepositoryInt
 }
 
 func (repository *liveVideoRepository) List(ctx context.Context, listInput *list.ListLiveVideoInput) ([]*entity.LiveVideo, error) {
-	var liveVideos []*entity.LiveVideo
-
-	data, err := repository.conn.Get(ctx, liveVideoListKey)
+	liveVideos, err := repository.scans(ctx)
 	if err != nil {
-		if errors.Is(&redis.RedisCacheEmptyError{}, err) {
-			return liveVideos, nil
-		}
-
-		return nil, err
-	}
-
-	err = json.Unmarshal([]byte(data), &liveVideos)
-	if err != nil {
-		return nil, err
+		return liveVideos, err
 	}
 
 	return repository.listFilter(liveVideos, listInput), nil
@@ -62,6 +51,35 @@ func (repository *liveVideoRepository) Create(ctx context.Context, liveVideos []
 	}
 
 	return nil
+}
+
+func (repository *liveVideoRepository) Count(ctx context.Context) (int, error) {
+	liveVideos, err := repository.scans(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	return len(liveVideos), nil
+}
+
+func (repository *liveVideoRepository) scans(ctx context.Context) ([]*entity.LiveVideo, error) {
+	var liveVideos []*entity.LiveVideo
+
+	data, err := repository.conn.Get(ctx, liveVideoListKey)
+	if err != nil {
+		if errors.Is(&redis.RedisCacheEmptyError{}, err) {
+			return liveVideos, nil
+		}
+
+		return nil, err
+	}
+
+	err = json.Unmarshal([]byte(data), &liveVideos)
+	if err != nil {
+		return nil, err
+	}
+
+	return liveVideos, nil
 }
 
 func (repository *liveVideoRepository) listFilter(liveVideos []*entity.LiveVideo, listInput *list.ListLiveVideoInput) []*entity.LiveVideo {

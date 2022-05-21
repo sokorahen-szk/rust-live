@@ -273,3 +273,7 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 		a.Len(liveVideos, 0)
 	})
 }
+
+func Test_LiveVideoRepository_Count(t *testing.T) {
+	// TODO: 総件数のテスト追加
+}
