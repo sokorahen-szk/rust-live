@@ -27,7 +27,13 @@ func (ins listLiveVideosUsecase) Handle(ctx context.Context, input *list.ListLiv
 		return nil, err
 	}
 
+	liveVideoTotalCount, err := ins.liveVideoRepository.Count(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	return &pb.ListLiveVideosResponse{
 		LiveVideos: ToGrpcLiveVideos(liveVideos),
+		Pagination: ToGrpcPagination(input.Page(), input.Limit(), liveVideoTotalCount),
 	}, nil
 }
