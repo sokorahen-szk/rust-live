@@ -18,3 +18,7 @@ func (ins ElapsedTimes) Int() int {
 func (ins ElapsedTimes) Int32() int32 {
 	return int32(ins)
 }
+
+func (ins ElapsedTimes) Hour() int {
+	return int(ins.Int() / 3600)
+}

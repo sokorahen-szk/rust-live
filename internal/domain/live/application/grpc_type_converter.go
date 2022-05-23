@@ -3,6 +3,7 @@ package application
 import (
 	"fmt"
 	"math"
+	"strconv"
 
 	pb "github.com/sokorahen-szk/rust-live/api/proto"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
@@ -25,7 +26,8 @@ func ToGrpcLiveVideos(liveVideos []*entity.LiveVideo) []*pb.LiveVideo {
 }
 
 func ToGrpcPagination(page int, limit int, total int) *pb.Pagination {
-	totalPage, err := fmt.Printf("%d", math.Ceil(float64(total)/float64(limit)))
+	f := math.Ceil(float64(total) / float64(limit))
+	totalPage, err := strconv.Atoi(fmt.Sprintf("%.0f", f))
 	if err != nil {
 		panic(err)
 	}
