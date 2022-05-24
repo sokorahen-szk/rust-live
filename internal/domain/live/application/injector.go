@@ -13,7 +13,11 @@ import (
 func NewInjectListLiveVideosUsecase(ctx context.Context) list.ListLiveVideosUsecaseInterface {
 	config := cfg.NewConfig()
 	redis := redis.NewRedis(ctx, config)
-	liveVideoRepository := live.NewLiveVideoRepository(redis)
 
-	return NewListLiveVideosUsecase(liveVideoRepository)
+	liveVideoRepository := live.NewLiveVideoRepository(redis)
+	if config.IsProd() {
+		return NewListLiveVideosUsecase(liveVideoRepository)
+	}
+
+	return NewListLiveVideosUsecaseMock()
 }
