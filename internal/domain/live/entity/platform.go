@@ -30,6 +30,10 @@ func (p Platform) Int() int {
 	return int(p)
 }
 
+func (p Platform) Int32() int32 {
+	return int32(p)
+}
+
 func (p Platform) String() string {
 	s := platformValues[p]
 	if s == "" {
