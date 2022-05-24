@@ -17,8 +17,8 @@ func NewListLiveVideosUsecaseMock() list.ListLiveVideosUsecaseInterface {
 }
 
 func (ins listLiveVideosUsecaseMock) Handle(ctx context.Context, input *list.ListLiveVideoInput) (*pb.ListLiveVideosResponse, error) {
-	if ctx.Value("test") == "error" {
-		return nil, errors.New("internal error")
+	if ctx.Value("test") == "list_live_videos_usecase_error" {
+		return nil, errors.New("list live videos usecase error")
 	}
 
 	liveVideos := []*entity.LiveVideo{
