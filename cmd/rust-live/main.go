@@ -25,7 +25,7 @@ func main() {
 		logger.Fatalf("failed server binding port %d", c.Port)
 	}
 
-	scheduler()
+	scheduler(c)
 
 	server := grpc.NewServer()
 	reflection.Register(server)
@@ -38,7 +38,11 @@ func main() {
 	}
 }
 
-func scheduler() {
+func scheduler(cfg *cfg.Config) {
+	if !cfg.IsProd() {
+		return
+	}
+
 	ctx := context.Background()
 	s := gocron.NewScheduler(time.Local)
 

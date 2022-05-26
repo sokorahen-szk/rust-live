@@ -76,9 +76,16 @@ func (usecase fetchLiveVideosUsecase) listTwitchVideoByUserId(userId string) (*t
 }
 
 func (usecase fetchLiveVideosUsecase) createArchiveVideos(ctx context.Context, in *input.ArchiveVideoInput) *entity.VideoId {
+	searchBroadcastId := entity.NewVideoBroadcastId(in.BroadcastId)
+	archiveVideo, _ := usecase.archiveVideoRepository.GetByBroadcastId(ctx, searchBroadcastId)
+
+	if archiveVideo != nil {
+		return archiveVideo.GetId()
+	}
+
 	err := usecase.archiveVideoRepository.Create(ctx, in)
 	if err != nil {
-		logger.Infof("failed archiveVideoRepository.Create() err: %+v", err)
+		logger.Errorf("failed archiveVideoRepository.Create() err: %+v", err)
 		return nil
 	}
 
