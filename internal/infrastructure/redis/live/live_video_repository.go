@@ -11,6 +11,7 @@ import (
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/repository"
 	"github.com/sokorahen-szk/rust-live/internal/infrastructure/redis"
 	"github.com/sokorahen-szk/rust-live/internal/usecase/live/list"
+	"github.com/sokorahen-szk/rust-live/pkg/logger"
 )
 
 type liveVideoRepository struct {
@@ -39,6 +40,8 @@ func (repository *liveVideoRepository) Create(ctx context.Context, liveVideos []
 	if err != nil {
 		return err
 	}
+
+	logger.Debugf("serializeData = %s", serializeData)
 
 	setData := &redis.RedisSetData{
 		Key:   liveVideoListKey,

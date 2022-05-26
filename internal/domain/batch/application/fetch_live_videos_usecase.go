@@ -38,6 +38,9 @@ func NewFetchLiveVideosUsecase(
 }
 
 func (usecase fetchLiveVideosUsecase) Handle(ctx context.Context) error {
+	logger.Info("start fetch live videos batch")
+	defer logger.Info("end fetch live videos batch")
+
 	now := usecase.now()
 	currentDatetime := common.NewDatetimeFromTime(&now)
 
