@@ -10,6 +10,7 @@ import (
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/repository"
 	usecaseBatch "github.com/sokorahen-szk/rust-live/internal/usecase/batch"
 	"github.com/sokorahen-szk/rust-live/internal/usecase/live/list"
+	"github.com/sokorahen-szk/rust-live/pkg/logger"
 )
 
 type updateLiveVideosUsecase struct {
@@ -31,6 +32,9 @@ func NewUpdateLiveVideosUsecase(
 }
 
 func (usecase updateLiveVideosUsecase) Handle(ctx context.Context) error {
+	logger.Info("start update live videos batch")
+	defer logger.Info("end update live videos batch")
+
 	now := usecase.now()
 	currentDatetime := common.NewDatetimeFromTime(&now)
 
