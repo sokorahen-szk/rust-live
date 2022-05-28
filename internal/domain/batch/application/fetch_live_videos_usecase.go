@@ -138,6 +138,7 @@ func (usecase fetchLiveVideosUsecase) fetchTwitchApiDataToLocalStorage(ctx conte
 			Url:             archiveVideoUrl,
 			Stremer:         stremer.String(),
 			Platform:        platform.Int(),
+			Status:          entity.VideoStatusStreaming.Int(),
 			ThumbnailImage:  thumbnailImage.String(),
 			StartedDatetime: startedDatetime.Time(),
 		}

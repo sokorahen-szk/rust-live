@@ -59,3 +59,49 @@ func Test_DiffSeconds(t *testing.T) {
 		a.Equal(0, actual)
 	})
 }
+
+func Test_Lt(t *testing.T) {
+	a := assert.New(t)
+
+	t.Run("x > b のとき、falseになること", func(t *testing.T) {
+		x := NewDatetime("2022-02-02T00:00:01Z")
+		y := NewDatetime("2022-02-02T00:00:00Z")
+
+		a.False(x.Lt(y.Time()))
+	})
+	t.Run("x < b のとき、trueになること", func(t *testing.T) {
+		x := NewDatetime("2022-02-02T00:00:00Z")
+		y := NewDatetime("2022-02-02T00:00:01Z")
+
+		a.True(x.Lt(y.Time()))
+	})
+	t.Run("x = b のとき、falseになること", func(t *testing.T) {
+		x := NewDatetime("2022-02-02T00:00:00Z")
+		y := NewDatetime("2022-02-02T00:00:00Z")
+
+		a.False(x.Lt(y.Time()))
+	})
+}
+
+func Test_Gt(t *testing.T) {
+	a := assert.New(t)
+
+	t.Run("x > b のとき、trueになること", func(t *testing.T) {
+		x := NewDatetime("2022-02-02T00:00:01Z")
+		y := NewDatetime("2022-02-02T00:00:00Z")
+
+		a.True(x.Gt(y.Time()))
+	})
+	t.Run("x < b のとき、falseになること", func(t *testing.T) {
+		x := NewDatetime("2022-02-02T00:00:00Z")
+		y := NewDatetime("2022-02-02T00:00:01Z")
+
+		a.False(x.Gt(y.Time()))
+	})
+	t.Run("x = b のとき、falseになること", func(t *testing.T) {
+		x := NewDatetime("2022-02-02T00:00:00Z")
+		y := NewDatetime("2022-02-02T00:00:00Z")
+
+		a.False(x.Lt(y.Time()))
+	})
+}
