@@ -64,3 +64,13 @@ func (ins *Datetime) DiffSeconds(tm *time.Time) int {
 	diff := ins.Time().Sub(*tm)
 	return int(diff.Seconds())
 }
+
+// a < b
+func (ins *Datetime) Lt(tm *time.Time) bool {
+	return ins.Time().Before(*tm)
+}
+
+// a > b
+func (ins *Datetime) Gt(tm *time.Time) bool {
+	return ins.Time().After(*tm)
+}

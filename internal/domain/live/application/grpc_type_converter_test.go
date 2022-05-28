@@ -110,6 +110,17 @@ func Test_ToGrpcPagination(t *testing.T) {
 				TotalCount: 30,
 			},
 		},
+		{
+			"リミット=1、レコード=10件、現ページ=1、全ページ=10、前ページ=1、次ページ=2",
+			&pb.Pagination{
+				Limit:      1,
+				Page:       1,
+				Prev:       1,
+				Next:       2,
+				TotalPage:  10,
+				TotalCount: 10,
+			},
+		},
 	}
 	for _, p := range tests {
 		t.Run(p.name, func(t *testing.T) {

@@ -136,11 +136,11 @@ func (repository *liveVideoRepository) sort(liveVideos []*entity.LiveVideo, sort
 		})
 	case entity.LiveVideoStartedDatetimeAsc:
 		sort.SliceStable(liveVideos, func(i, j int) bool {
-			return liveVideos[i].StartedDatetime.RFC3339() < liveVideos[j].StartedDatetime.RFC3339()
+			return liveVideos[i].StartedDatetime.Lt(liveVideos[j].StartedDatetime.Time())
 		})
 	case entity.LiveVideoStartedDatetimeDesc:
 		sort.SliceStable(liveVideos, func(i, j int) bool {
-			return liveVideos[i].StartedDatetime.RFC3339() > liveVideos[j].StartedDatetime.RFC3339()
+			return liveVideos[i].StartedDatetime.Gt(liveVideos[j].StartedDatetime.Time())
 		})
 	}
 

@@ -25,7 +25,7 @@ func main() {
 		logger.Fatalf("failed server binding port %d", c.Port)
 	}
 
-	scheduler()
+	scheduler(c)
 
 	server := grpc.NewServer()
 	reflection.Register(server)
@@ -38,18 +38,28 @@ func main() {
 	}
 }
 
-func scheduler() {
+func scheduler(cfg *cfg.Config) {
+	if !cfg.IsProd() {
+		return
+	}
+
 	ctx := context.Background()
 	s := gocron.NewScheduler(time.Local)
 
 	s.Every(1).Minutes().Do(func(ctx context.Context) error {
-		usecase := batch.NewInjectFetchLiveVideosUsecase(ctx)
-		return usecase.Handle(ctx)
-	}, ctx)
+		fetchLiveVideosUsecase := batch.NewInjectFetchLiveVideosUsecase(ctx)
+		err := fetchLiveVideosUsecase.Handle(ctx)
+		if err != nil {
+			return err
+		}
 
-	s.Every(1).Minutes().Do(func(ctx context.Context) error {
-		usecase := batch.NewInjectUpdateLiveVideosUsecase(ctx)
-		return usecase.Handle(ctx)
+		updateLiveVideosUsecase := batch.NewInjectUpdateLiveVideosUsecase(ctx)
+		err = updateLiveVideosUsecase.Handle(ctx)
+		if err != nil {
+			return err
+		}
+
+		return nil
 	}, ctx)
 
 	s.StartAsync()

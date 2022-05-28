@@ -26,8 +26,8 @@ func (s *LiveController) ListLiveVideos(ctx context.Context, req *pb.ListLiveVid
 		return nil, err
 	}
 
-	var limit int
-	if formData.GetLimit() == 0 {
+	limit := formData.GetLimit()
+	if limit == 0 {
 		limit = listLiveVideoRequestDefaultLimit
 	}
 
