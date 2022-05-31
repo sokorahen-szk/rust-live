@@ -2,10 +2,18 @@ package form
 
 import (
 	pb "github.com/sokorahen-szk/rust-live/api/proto"
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/go-playground/validator.v9"
 )
 
 type formValidator struct{}
+
+type validationError struct {
+	field       string
+	description string
+}
 
 const (
 	isListLiveVideoSortValidateName string = "is_list_live_video_sort"
@@ -30,30 +38,49 @@ func (fv *formValidator) validateStruct(validate *validator.Validate, form inter
 		return nil
 	}
 
-	/*
-		for _, err := range err.(validator.ValidationErrors) {
-			errMessage := fv.validatorFieldMessage(err.Field())
-			// ここでエラーメッセージを新しく配列として作る
-		}
-	*/
-	return err
-}
-
-func (fv *formValidator) validatorFieldMessage(fieldName string) string {
-	switch fieldName {
-	case "SearchKeywords":
-		return "入力された検索キーワードが正しくありません。"
-	case "Platform":
-		return "配信プラットフォームが正しくありません。"
-	case "Sort":
-		return "ソートキーが正しくありません。"
-	case "Page":
-		return "現在ページが正しくありません。"
-	case "Limit":
-		return "取得する件数が正しくありません。"
+	validationErrors := []validationError{}
+	for _, err := range err.(validator.ValidationErrors) {
+		validationErrors = append(validationErrors, fv.validatorFieldMessage(err.Field()))
 	}
 
-	return "validation error"
+	return fv.generateBadRequestError(validationErrors)
+}
+
+func (fv *formValidator) generateBadRequestError(validationErrors []validationError) error {
+	fieldViolations := make([]*errdetails.BadRequest_FieldViolation, 0, len(validationErrors))
+	for _, validationError := range validationErrors {
+		fieldViolations = append(fieldViolations, &errdetails.BadRequest_FieldViolation{
+			Field:       validationError.field,
+			Description: validationError.description,
+		})
+	}
+
+	st := status.New(codes.InvalidArgument, "リクエストが不正です。")
+	v := &errdetails.BadRequest{
+		FieldViolations: fieldViolations,
+	}
+
+	s, _ := st.WithDetails(v)
+	return s.Err()
+}
+
+func (fv *formValidator) validatorFieldMessage(fieldName string) validationError {
+	vError := validationError{}
+	switch fieldName {
+	case "SearchKeywords":
+		vError.description = "入力された検索キーワードが正しくありません。"
+	case "Platform":
+		vError.description = "配信プラットフォームが正しくありません。"
+	case "Sort":
+		vError.description = "ソートキーが正しくありません。"
+	case "Page":
+		vError.description = "現在ページが正しくありません。"
+	case "Limit":
+		vError.description = "取得する件数が正しくありません。"
+	}
+
+	vError.field = fieldName
+	return vError
 }
 
 func (fv *formValidator) registerValidations(validate *validator.Validate) error {
