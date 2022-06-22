@@ -307,3 +307,37 @@ func Test_LiveVideoRepository_Count(t *testing.T) {
 		a.Equal(5, count)
 	})
 }
+
+func Test_LiveVideoRepository_Analytics(t *testing.T) {
+	a := assert.New(t)
+	ctx := context.Background()
+	c := cfg.NewConfig()
+	redis := redis.NewRedis(ctx, c)
+	liveVideoRepository := NewLiveVideoRepository(redis)
+
+	t.Run("0件の場合", func(t *testing.T) {
+		redis.Truncate()
+
+		output, err := liveVideoRepository.Analytics(ctx)
+		a.NoError(err)
+		a.Equal(0, output.GetViewers())
+	})
+	t.Run("5件以上の場合", func(t *testing.T) {
+		redis.Truncate()
+
+		liveVideos := []*entity.LiveVideo{
+			mockEntity.NewMockLiveVideo(1),
+			mockEntity.NewMockLiveVideo(2),
+			mockEntity.NewMockLiveVideo(3),
+			mockEntity.NewMockLiveVideo(4),
+			mockEntity.NewMockLiveVideo(5),
+		}
+
+		err := liveVideoRepository.Create(ctx, liveVideos)
+		a.NoError(err)
+
+		output, err := liveVideoRepository.Analytics(ctx)
+		a.NoError(err)
+		a.Equal(50, output.GetViewers())
+	})
+}

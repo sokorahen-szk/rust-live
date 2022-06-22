@@ -10,6 +10,7 @@ import (
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/repository"
 	"github.com/sokorahen-szk/rust-live/internal/infrastructure/redis"
+	"github.com/sokorahen-szk/rust-live/internal/usecase/live"
 	"github.com/sokorahen-szk/rust-live/internal/usecase/live/list"
 	"github.com/sokorahen-szk/rust-live/pkg/logger"
 )
@@ -63,6 +64,22 @@ func (repository *liveVideoRepository) Count(ctx context.Context) (int, error) {
 	}
 
 	return len(liveVideos), nil
+}
+
+func (repository *liveVideoRepository) Analytics(ctx context.Context) (*live.AnalyticsOutput, error) {
+	liveVideos, err := repository.scans(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	viewers := 0
+	for _, liveVideo := range liveVideos {
+		viewers += liveVideo.GetViewer().Int()
+	}
+
+	return &live.AnalyticsOutput{
+		Viewers: viewers,
+	}, nil
 }
 
 func (repository *liveVideoRepository) scans(ctx context.Context) ([]*entity.LiveVideo, error) {
