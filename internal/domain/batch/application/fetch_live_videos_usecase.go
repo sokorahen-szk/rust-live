@@ -10,9 +10,9 @@ import (
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/input"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/repository"
-	"github.com/sokorahen-szk/rust-live/internal/infrastructure/batch"
 	"github.com/sokorahen-szk/rust-live/internal/infrastructure/batch/twitch"
 	usecaseBatch "github.com/sokorahen-szk/rust-live/internal/usecase/batch"
+	httpClient "github.com/sokorahen-szk/rust-live/pkg/http"
 	"github.com/sokorahen-szk/rust-live/pkg/logger"
 )
 
@@ -57,7 +57,7 @@ func (usecase fetchLiveVideosUsecase) Handle(ctx context.Context) error {
 }
 
 func (usecase fetchLiveVideosUsecase) listTwitchBroadcast() (*twitch.ListBroadcastResponse, error) {
-	options := []batch.RequestParam{
+	options := []httpClient.RequestParam{
 		{Key: "language", Value: "ja"},
 		{Key: "game_id", Value: twitch.RustGameId},
 		{Key: "type", Value: "live"},
@@ -68,7 +68,7 @@ func (usecase fetchLiveVideosUsecase) listTwitchBroadcast() (*twitch.ListBroadca
 }
 
 func (usecase fetchLiveVideosUsecase) listTwitchVideoByUserId(userId string) (*twitch.ListVideoByUserIdResponse, error) {
-	options := []batch.RequestParam{
+	options := []httpClient.RequestParam{
 		{Key: "first", Value: "1"},
 	}
 

@@ -1,4 +1,4 @@
-package batch
+package http
 
 import (
 	"encoding/json"
@@ -30,7 +30,7 @@ type GetResponse struct {
 	Data interface{}
 }
 
-func NewHttpClient(method string, body io.Reader) *HttpClient {
+func NewHttpClient(method string, body io.Reader) HttpClientInterface {
 	req, err := http.NewRequest(method, "", body)
 	if err != nil {
 		panic(err)

@@ -10,13 +10,13 @@ import (
 	cfg "github.com/sokorahen-szk/rust-live/config"
 	"github.com/sokorahen-szk/rust-live/internal/domain/common"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
-	"github.com/sokorahen-szk/rust-live/internal/infrastructure/batch"
 	"github.com/sokorahen-szk/rust-live/internal/infrastructure/batch/twitch"
 	"github.com/sokorahen-szk/rust-live/internal/infrastructure/postgresql"
 	postgresqlLive "github.com/sokorahen-szk/rust-live/internal/infrastructure/postgresql/live"
 	"github.com/sokorahen-szk/rust-live/internal/infrastructure/redis"
 	redisLive "github.com/sokorahen-szk/rust-live/internal/infrastructure/redis/live"
 	"github.com/sokorahen-szk/rust-live/internal/usecase/live/list"
+	httpClient "github.com/sokorahen-szk/rust-live/pkg/http"
 	testTwitch "github.com/sokorahen-szk/rust-live/tests/infrastructure/batch/twitch"
 )
 
@@ -34,14 +34,14 @@ func Test_FetchLiveVideosUsecase_Handle(t *testing.T) {
 	now := common.NewDatetime("2022-02-02T00:01:32Z")
 	sortKey := entity.NewLiveVideoSortKey(0)
 
-	listBroadcastOptions := []batch.RequestParam{
+	listBroadcastOptions := []httpClient.RequestParam{
 		{Key: "language", Value: "ja"},
 		{Key: "game_id", Value: twitch.RustGameId},
 		{Key: "type", Value: "live"},
 		{Key: "first", Value: "100"},
 	}
 
-	listVideoByUserIdOptions := []batch.RequestParam{
+	listVideoByUserIdOptions := []httpClient.RequestParam{
 		{Key: "first", Value: "1"},
 	}
 
@@ -86,7 +86,7 @@ func Test_FetchLiveVideosUsecase_Handle(t *testing.T) {
 		gomock.InOrder(
 			mockTwitchApiClient.EXPECT().
 				ListBroadcast(gomock.Eq(listBroadcastOptions)).
-				Do(func(params []batch.RequestParam) {
+				Do(func(params []httpClient.RequestParam) {
 					a.Equal(listBroadcastOptions, params)
 				}).
 				Return(listBroadcastResponse, nil).
@@ -94,7 +94,7 @@ func Test_FetchLiveVideosUsecase_Handle(t *testing.T) {
 
 			mockTwitchApiClient.EXPECT().
 				ListVideoByUserId(gomock.Eq(userId), gomock.Eq(listVideoByUserIdOptions)).
-				Do(func(actualUserId string, params []batch.RequestParam) {
+				Do(func(actualUserId string, params []httpClient.RequestParam) {
 					a.Equal(listVideoByUserIdOptions, params)
 					a.Equal(userId, actualUserId)
 				}).
@@ -152,7 +152,7 @@ func Test_FetchLiveVideosUsecase_Handle(t *testing.T) {
 		gomock.InOrder(
 			mockTwitchApiClient.EXPECT().
 				ListBroadcast(gomock.Eq(listBroadcastOptions)).
-				Do(func(params []batch.RequestParam) {
+				Do(func(params []httpClient.RequestParam) {
 					a.Equal(listBroadcastOptions, params)
 				}).
 				Return(listBroadcastResponse, nil).
@@ -160,7 +160,7 @@ func Test_FetchLiveVideosUsecase_Handle(t *testing.T) {
 
 			mockTwitchApiClient.EXPECT().
 				ListVideoByUserId(gomock.Eq(userId), gomock.Eq(listVideoByUserIdOptions)).
-				Do(func(actualUserId string, params []batch.RequestParam) {
+				Do(func(actualUserId string, params []httpClient.RequestParam) {
 					a.Equal(listVideoByUserIdOptions, params)
 					a.Equal(userId, actualUserId)
 				}).
