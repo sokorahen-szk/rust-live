@@ -8,8 +8,8 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	batch "github.com/sokorahen-szk/rust-live/internal/infrastructure/batch"
 	twitch "github.com/sokorahen-szk/rust-live/internal/infrastructure/batch/twitch"
+	http "github.com/sokorahen-szk/rust-live/pkg/http"
 )
 
 // MockTwitchApiClientInterface is a mock of TwitchApiClientInterface interface.
@@ -36,7 +36,7 @@ func (m *MockTwitchApiClientInterface) EXPECT() *MockTwitchApiClientInterfaceMoc
 }
 
 // ListBroadcast mocks base method.
-func (m *MockTwitchApiClientInterface) ListBroadcast(params []batch.RequestParam) (*twitch.ListBroadcastResponse, error) {
+func (m *MockTwitchApiClientInterface) ListBroadcast(params []http.RequestParam) (*twitch.ListBroadcastResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListBroadcast", params)
 	ret0, _ := ret[0].(*twitch.ListBroadcastResponse)
@@ -51,7 +51,7 @@ func (mr *MockTwitchApiClientInterfaceMockRecorder) ListBroadcast(params interfa
 }
 
 // ListVideoByUserId mocks base method.
-func (m *MockTwitchApiClientInterface) ListVideoByUserId(userId string, params []batch.RequestParam) (*twitch.ListVideoByUserIdResponse, error) {
+func (m *MockTwitchApiClientInterface) ListVideoByUserId(userId string, params []http.RequestParam) (*twitch.ListVideoByUserIdResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListVideoByUserId", userId, params)
 	ret0, _ := ret[0].(*twitch.ListVideoByUserIdResponse)

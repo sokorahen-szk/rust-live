@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	cfg "github.com/sokorahen-szk/rust-live/config"
-	"github.com/sokorahen-szk/rust-live/internal/infrastructure/batch"
+	httpClient "github.com/sokorahen-szk/rust-live/pkg/http"
 )
 
 const (
@@ -42,17 +42,17 @@ type ListVideoByUserId struct {
 }
 
 type TwitchApiClientInterface interface {
-	ListBroadcast(params []batch.RequestParam) (*ListBroadcastResponse, error)
-	ListVideoByUserId(userId string, params []batch.RequestParam) (*ListVideoByUserIdResponse, error)
+	ListBroadcast(params []httpClient.RequestParam) (*ListBroadcastResponse, error)
+	ListVideoByUserId(userId string, params []httpClient.RequestParam) (*ListVideoByUserIdResponse, error)
 }
 type TwitchApiClient struct {
-	httpClient *batch.HttpClient
+	httpClient httpClient.HttpClientInterface
 
 	clientId string
 	auth     string
 }
 
-func NewTwitchApiClient(httpClient *batch.HttpClient, config *cfg.Config) TwitchApiClientInterface {
+func NewTwitchApiClient(httpClient httpClient.HttpClientInterface, config *cfg.Config) TwitchApiClientInterface {
 	apiClient := &TwitchApiClient{
 		httpClient: httpClient,
 	}
@@ -64,7 +64,7 @@ func NewTwitchApiClient(httpClient *batch.HttpClient, config *cfg.Config) Twitch
 	return apiClient
 }
 
-func (api *TwitchApiClient) ListBroadcast(params []batch.RequestParam) (*ListBroadcastResponse, error) {
+func (api *TwitchApiClient) ListBroadcast(params []httpClient.RequestParam) (*ListBroadcastResponse, error) {
 	api.httpClient.AddParams(params)
 	httpClientGetResponse, err := api.httpClient.Get(ListBroadcastUrl, &ListBroadcastResponse{})
 	if err != nil {
@@ -77,8 +77,8 @@ func (api *TwitchApiClient) ListBroadcast(params []batch.RequestParam) (*ListBro
 	return ListBroadcastResponse, nil
 }
 
-func (api *TwitchApiClient) ListVideoByUserId(userId string, params []batch.RequestParam) (*ListVideoByUserIdResponse, error) {
-	params = append(params, []batch.RequestParam{
+func (api *TwitchApiClient) ListVideoByUserId(userId string, params []httpClient.RequestParam) (*ListVideoByUserIdResponse, error) {
+	params = append(params, []httpClient.RequestParam{
 		{Key: "user_id", Value: userId},
 	}...)
 	api.httpClient.AddParams(params)
@@ -95,7 +95,7 @@ func (api *TwitchApiClient) ListVideoByUserId(userId string, params []batch.Requ
 
 func (api *TwitchApiClient) setAuth() {
 	bearer := fmt.Sprintf("Bearer %s", api.auth)
-	api.httpClient.AddHeaders([]batch.RequestHeader{
+	api.httpClient.AddHeaders([]httpClient.RequestHeader{
 		{Key: "Client-Id", Value: api.clientId},
 		{Key: "Authorization", Value: bearer},
 	})
