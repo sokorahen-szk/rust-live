@@ -1,7 +1,6 @@
 package twitch
 
 import (
-	"net/http"
 	"testing"
 
 	httpClient "github.com/sokorahen-szk/rust-live/pkg/http"
@@ -13,7 +12,7 @@ import (
 func Test_ListBroadcast(t *testing.T) {
 	a := assert.New(t)
 	t.Run("オプションなし", func(t *testing.T) {
-		client := httpClient.NewHttpClient(http.MethodGet, nil)
+		client := httpClient.NewHttpClient(nil)
 		twitchApiClient := NewTwitchApiClient(client, cfg.NewConfig())
 
 		listBroadcast, err := twitchApiClient.ListBroadcast(nil)
@@ -21,7 +20,7 @@ func Test_ListBroadcast(t *testing.T) {
 		a.NotNil(listBroadcast)
 	})
 	t.Run("オプションあり", func(t *testing.T) {
-		client := httpClient.NewHttpClient(http.MethodGet, nil)
+		client := httpClient.NewHttpClient(nil)
 		twitchApiClient := NewTwitchApiClient(client, cfg.NewConfig())
 
 		options := []httpClient.RequestParam{
@@ -44,7 +43,7 @@ func Test_ListVideoByUserId(t *testing.T) {
 	searchUserId := "186620619"
 
 	t.Run("オプションなし", func(t *testing.T) {
-		client := httpClient.NewHttpClient(http.MethodGet, nil)
+		client := httpClient.NewHttpClient(nil)
 		twitchApiClient := NewTwitchApiClient(client, cfg.NewConfig())
 
 		listBroadcast, err := twitchApiClient.ListVideoByUserId(searchUserId, nil)
@@ -53,7 +52,7 @@ func Test_ListVideoByUserId(t *testing.T) {
 	})
 	t.Run("オプションあり", func(t *testing.T) {
 		t.Skip("アーカイブ動画が一定期間過ぎると消されるため、このテストはスキップする")
-		client := httpClient.NewHttpClient(http.MethodGet, nil)
+		client := httpClient.NewHttpClient(nil)
 		twitchApiClient := NewTwitchApiClient(client, cfg.NewConfig())
 
 		options := []httpClient.RequestParam{

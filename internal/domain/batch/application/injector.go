@@ -2,7 +2,6 @@ package application
 
 import (
 	"context"
-	"net/http"
 	"time"
 
 	usecaseBatch "github.com/sokorahen-szk/rust-live/internal/usecase/batch"
@@ -21,7 +20,7 @@ func NewInjectFetchLiveVideosUsecase(ctx context.Context) usecaseBatch.FetchLive
 	redis := redis.NewRedis(ctx, config)
 	postgresql := postgresql.NewPostgreSQL(config)
 
-	client := httpClient.NewHttpClient(http.MethodGet, nil)
+	client := httpClient.NewHttpClient(nil)
 	archiveVideoRepository := postgresqlLive.NewArchiveVideoRepository(postgresql)
 	liveVideoRepository := redisLive.NewLiveVideoRepository(redis)
 	twitchApiClient := twitch.NewTwitchApiClient(client, config)

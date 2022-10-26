@@ -32,14 +32,14 @@ type GetResponse struct {
 
 var globalParams map[string]string
 
-func NewHttpClient(method string, body io.Reader) HttpClientInterface {
-	req, err := http.NewRequest(method, "", body)
+func NewHttpClient(body io.Reader) HttpClientInterface {
+	req, err := http.NewRequest("", "", body)
 	if err != nil {
 		panic(err)
 	}
 
 	httpClient := &HttpClient{
-		req: &http.Request{},
+		req: req,
 	}
 
 	httpClient.params = req.URL.Query()
@@ -63,12 +63,13 @@ func (r *HttpClient) AddParams(params []RequestParam) {
 }
 
 func (r *HttpClient) Get(reqUrl string, v interface{}) (*GetResponse, error) {
-	changedUrl, err := url.Parse(reqUrl)
+	url, err := url.Parse(reqUrl)
 	if err != nil {
 		return nil, err
 	}
-	r.req.URL = changedUrl
+	r.req.URL = url
 	r.req.URL.RawQuery = r.params.Encode()
+	r.req.Method = http.MethodGet
 
 	r.deleteParamAll()
 
@@ -89,10 +90,6 @@ func (r *HttpClient) Get(reqUrl string, v interface{}) (*GetResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	//if httpResponse.StatusCode != http.StatusOK {
-	//	return nil, fmt.Errorf("%d", httpResponse.StatusCode)
-	//}
 
 	response := &GetResponse{Data: v}
 	return response, nil
