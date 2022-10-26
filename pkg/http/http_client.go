@@ -30,8 +30,10 @@ type GetResponse struct {
 	Data interface{}
 }
 
-func NewHttpClient(method string, body io.Reader) HttpClientInterface {
-	req, err := http.NewRequest(method, "", body)
+var globalParams map[string]string
+
+func NewHttpClient(body io.Reader) HttpClientInterface {
+	req, err := http.NewRequest("", "", body)
 	if err != nil {
 		panic(err)
 	}
@@ -41,6 +43,8 @@ func NewHttpClient(method string, body io.Reader) HttpClientInterface {
 	}
 
 	httpClient.params = req.URL.Query()
+
+	globalParams = map[string]string{}
 
 	return httpClient
 }
@@ -53,23 +57,21 @@ func (r *HttpClient) AddHeaders(headers []RequestHeader) {
 
 func (r *HttpClient) AddParams(params []RequestParam) {
 	for _, param := range params {
+		globalParams[param.Key] = param.Value
 		r.params.Add(param.Key, param.Value)
 	}
 }
 
-func (r *HttpClient) DeleteParams(params []RequestParam) {
-	for _, key := range r.mapKey(params) {
-		r.params.Del(key)
-	}
-}
-
 func (r *HttpClient) Get(reqUrl string, v interface{}) (*GetResponse, error) {
-	changedUrl, err := url.Parse(reqUrl)
+	url, err := url.Parse(reqUrl)
 	if err != nil {
 		return nil, err
 	}
-	r.req.URL = changedUrl
+	r.req.URL = url
 	r.req.URL.RawQuery = r.params.Encode()
+	r.req.Method = http.MethodGet
+
+	r.deleteParamAll()
 
 	client := r.createClient()
 	httpResponse, err := client.Do(r.req)
@@ -93,16 +95,19 @@ func (r *HttpClient) Get(reqUrl string, v interface{}) (*GetResponse, error) {
 	return response, nil
 }
 
+func (r *HttpClient) deleteParam(key string) {
+	r.params.Del(key)
+	delete(globalParams, key)
+}
+
+func (r *HttpClient) deleteParamAll() {
+	for key, _ := range globalParams {
+		r.deleteParam(key)
+	}
+}
+
 func (r *HttpClient) createClient() *http.Client {
 	return &http.Client{
 		Timeout: time.Duration(httpClientTimeout * time.Second),
 	}
-}
-
-func (r *HttpClient) mapKey(params []RequestParam) []string {
-	keys := make([]string, 0)
-	for _, param := range params {
-		keys = append(keys, param.Key)
-	}
-	return keys
 }

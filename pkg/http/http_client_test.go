@@ -2,7 +2,6 @@ package http
 
 import (
 	"fmt"
-	"net/http"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -29,7 +28,7 @@ func Test_NewHttpClient_Get(t *testing.T) {
 	url := "https://httpbin.org/get"
 
 	t.Run("Getパラメータなし", func(t *testing.T) {
-		client := NewHttpClient(http.MethodGet, nil)
+		client := NewHttpClient(nil)
 		httpBinOrgGet := &TestHttpBinOrgGet{}
 
 		res, err := client.Get(url, httpBinOrgGet)
@@ -43,7 +42,7 @@ func Test_NewHttpClient_Get(t *testing.T) {
 		a.Equal("", actual.Headers.Fuga)
 	})
 	t.Run("Getパラメータあり", func(t *testing.T) {
-		client := NewHttpClient(http.MethodGet, nil)
+		client := NewHttpClient(nil)
 		httpBinOrgGet := &TestHttpBinOrgGet{}
 
 		client.AddParams([]RequestParam{{"test", "abcd"}})
@@ -58,7 +57,7 @@ func Test_NewHttpClient_Get(t *testing.T) {
 		a.Equal("", actual.Headers.Fuga)
 	})
 	t.Run("Getパラメータあり, ヘッダー追加あり", func(t *testing.T) {
-		client := NewHttpClient(http.MethodGet, nil)
+		client := NewHttpClient(nil)
 		httpBinOrgGet := &TestHttpBinOrgGet{}
 
 		client.AddParams([]RequestParam{{"test", "abcd"}})
