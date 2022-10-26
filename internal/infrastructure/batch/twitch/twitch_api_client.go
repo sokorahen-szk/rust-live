@@ -71,8 +71,6 @@ func (api *TwitchApiClient) ListBroadcast(params []httpClient.RequestParam) (*Li
 		return nil, err
 	}
 
-	api.httpClient.DeleteParams(params)
-
 	ListBroadcastResponse := httpClientGetResponse.Data.(*ListBroadcastResponse)
 	return ListBroadcastResponse, nil
 }
@@ -86,8 +84,6 @@ func (api *TwitchApiClient) ListVideoByUserId(userId string, params []httpClient
 	if err != nil {
 		return nil, err
 	}
-
-	api.httpClient.DeleteParams(params)
 
 	listVideoByUserIdResponse := httpClientGetResponse.Data.(*ListVideoByUserIdResponse)
 	return listVideoByUserIdResponse, nil

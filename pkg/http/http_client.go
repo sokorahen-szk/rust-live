@@ -30,6 +30,8 @@ type GetResponse struct {
 	Data interface{}
 }
 
+var globalParams map[string]string
+
 func NewHttpClient(method string, body io.Reader) HttpClientInterface {
 	req, err := http.NewRequest(method, "", body)
 	if err != nil {
@@ -37,10 +39,12 @@ func NewHttpClient(method string, body io.Reader) HttpClientInterface {
 	}
 
 	httpClient := &HttpClient{
-		req: req,
+		req: &http.Request{},
 	}
 
 	httpClient.params = req.URL.Query()
+
+	globalParams = map[string]string{}
 
 	return httpClient
 }
@@ -53,13 +57,8 @@ func (r *HttpClient) AddHeaders(headers []RequestHeader) {
 
 func (r *HttpClient) AddParams(params []RequestParam) {
 	for _, param := range params {
+		globalParams[param.Key] = param.Value
 		r.params.Add(param.Key, param.Value)
-	}
-}
-
-func (r *HttpClient) DeleteParams(params []RequestParam) {
-	for _, key := range r.mapKey(params) {
-		r.params.Del(key)
 	}
 }
 
@@ -70,6 +69,8 @@ func (r *HttpClient) Get(reqUrl string, v interface{}) (*GetResponse, error) {
 	}
 	r.req.URL = changedUrl
 	r.req.URL.RawQuery = r.params.Encode()
+
+	r.deleteParamAll()
 
 	client := r.createClient()
 	httpResponse, err := client.Do(r.req)
@@ -89,20 +90,27 @@ func (r *HttpClient) Get(reqUrl string, v interface{}) (*GetResponse, error) {
 		return nil, err
 	}
 
+	//if httpResponse.StatusCode != http.StatusOK {
+	//	return nil, fmt.Errorf("%d", httpResponse.StatusCode)
+	//}
+
 	response := &GetResponse{Data: v}
 	return response, nil
+}
+
+func (r *HttpClient) deleteParam(key string) {
+	r.params.Del(key)
+	delete(globalParams, key)
+}
+
+func (r *HttpClient) deleteParamAll() {
+	for key, _ := range globalParams {
+		r.deleteParam(key)
+	}
 }
 
 func (r *HttpClient) createClient() *http.Client {
 	return &http.Client{
 		Timeout: time.Duration(httpClientTimeout * time.Second),
 	}
-}
-
-func (r *HttpClient) mapKey(params []RequestParam) []string {
-	keys := make([]string, 0)
-	for _, param := range params {
-		keys = append(keys, param.Key)
-	}
-	return keys
 }
