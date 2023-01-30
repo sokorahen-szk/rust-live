@@ -38,7 +38,7 @@ func (usecase updateLiveVideosUsecase) Handle(ctx context.Context) error {
 	now := usecase.now()
 	currentDatetime := common.NewDatetimeFromTime(&now)
 
-	listArchiveVideos, err := usecase.listArchiveVideos(ctx)
+	listStreamingVideos, err := usecase.listStreamingVideos(ctx)
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,7 @@ func (usecase updateLiveVideosUsecase) Handle(ctx context.Context) error {
 		return err
 	}
 
-	videoIds := usecase.filteredEndedVideoIds(listArchiveVideos, listLiveVideos)
+	videoIds := usecase.filteredEndedVideoIds(listStreamingVideos, listLiveVideos)
 	err = usecase.updateVideoStatus(ctx, videoIds, currentDatetime)
 	if err != nil {
 		return err
@@ -57,7 +57,7 @@ func (usecase updateLiveVideosUsecase) Handle(ctx context.Context) error {
 	return nil
 }
 
-func (usecase updateLiveVideosUsecase) listArchiveVideos(ctx context.Context) ([]*entity.ArchiveVideo, error) {
+func (usecase updateLiveVideosUsecase) listStreamingVideos(ctx context.Context) ([]*entity.ArchiveVideo, error) {
 	listArchiveVideoInput := &input.ListArchiveVideoInput{
 		VideoStatuses: []entity.VideoStatus{entity.VideoStatusStreaming},
 	}
