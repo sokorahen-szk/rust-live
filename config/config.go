@@ -93,6 +93,10 @@ func (c *Config) IsProd() bool {
 	return c.Env == "prod"
 }
 
+func (c *Config) IsDev() bool {
+	return c.Env == "dev"
+}
+
 func (c *Config) IsTest() bool {
-	return c.Env == "test"
+	return c.Env == "test" || c.Env == "local"
 }
