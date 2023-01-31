@@ -38,11 +38,10 @@ func NewFetchLiveVideosUsecase(
 }
 
 func (usecase fetchLiveVideosUsecase) Handle(ctx context.Context) error {
-	logger.Info("start fetch live videos batch")
-	defer logger.Info("end fetch live videos batch")
-
 	now := usecase.now()
 	currentDatetime := common.NewDatetimeFromTime(&now)
+
+	logger.Info(fmt.Sprintf("start fetch live videos batch %s", now.Format(time.RFC3339)))
 
 	liveVideos, err := usecase.fetchTwitchApiDataToLocalStorage(ctx, currentDatetime)
 	if err != nil {
@@ -53,6 +52,7 @@ func (usecase fetchLiveVideosUsecase) Handle(ctx context.Context) error {
 		return err
 	}
 
+	logger.Info(fmt.Sprintf("end fetch live videos batch %s", now.Format(time.RFC3339)))
 	return nil
 }
 
