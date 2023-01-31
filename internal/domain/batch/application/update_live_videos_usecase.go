@@ -2,58 +2,60 @@ package application
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/sokorahen-szk/rust-live/internal/domain/common"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/input"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/repository"
+	"github.com/sokorahen-szk/rust-live/internal/infrastructure/batch/twitch"
 	usecaseBatch "github.com/sokorahen-szk/rust-live/internal/usecase/batch"
-	"github.com/sokorahen-szk/rust-live/internal/usecase/live/list"
+	httpClient "github.com/sokorahen-szk/rust-live/pkg/http"
 	"github.com/sokorahen-szk/rust-live/pkg/logger"
 )
 
 type updateLiveVideosUsecase struct {
-	liveVideoRepository    repository.LiveVideoRepositoryInterface
 	archiveVideoRepository repository.ArchiveVideoRepositoryInterface
+	twitchApiClient        twitch.TwitchApiClientInterface
 	now                    func() time.Time
 }
 
 func NewUpdateLiveVideosUsecase(
-	liveVideoRepository repository.LiveVideoRepositoryInterface,
 	archiveVideoRepository repository.ArchiveVideoRepositoryInterface,
+	twitchApiClient twitch.TwitchApiClientInterface,
 	now func() time.Time,
 ) usecaseBatch.UpdateLiveVideosUsecaseInterface {
 	return updateLiveVideosUsecase{
-		liveVideoRepository:    liveVideoRepository,
 		archiveVideoRepository: archiveVideoRepository,
+		twitchApiClient:        twitchApiClient,
 		now:                    now,
 	}
 }
 
 func (usecase updateLiveVideosUsecase) Handle(ctx context.Context) error {
-	logger.Info("start update live videos batch")
-	defer logger.Info("end update live videos batch")
-
 	now := usecase.now()
 	currentDatetime := common.NewDatetimeFromTime(&now)
+
+	logger.Info(fmt.Sprintf("start update live videos batch %s", now.Format(time.RFC3339)))
 
 	listStreamingVideos, err := usecase.listStreamingVideos(ctx)
 	if err != nil {
 		return err
 	}
 
-	listLiveVideos, err := usecase.listLiveVideos(ctx)
+	listBroadcastResponse, err := usecase.listTwitchBroadcast()
 	if err != nil {
 		return err
 	}
 
-	videoIds := usecase.filteredEndedVideoIds(listStreamingVideos, listLiveVideos)
+	videoIds := usecase.filteredEndedVideoIds(listStreamingVideos, listBroadcastResponse)
 	err = usecase.updateVideoStatus(ctx, videoIds, currentDatetime)
 	if err != nil {
 		return err
 	}
 
+	logger.Info(fmt.Sprintf("end update live videos batch %s", now.Format(time.RFC3339)))
 	return nil
 }
 
@@ -69,21 +71,27 @@ func (usecase updateLiveVideosUsecase) listStreamingVideos(ctx context.Context) 
 	return archiveVideos, nil
 }
 
-func (usecase updateLiveVideosUsecase) listLiveVideos(ctx context.Context) ([]*entity.LiveVideo, error) {
-	liveVideos, err := usecase.liveVideoRepository.List(ctx, &list.ListLiveVideoInput{})
-	if err != nil {
-		return nil, err
+func (usecase updateLiveVideosUsecase) listTwitchBroadcast() (*twitch.ListBroadcastResponse, error) {
+	options := []httpClient.RequestParam{
+		{Key: "language", Value: "ja"},
+		{Key: "game_id", Value: twitch.RustGameId},
+		{Key: "type", Value: "live"},
+		{Key: "first", Value: "100"},
 	}
 
-	return liveVideos, nil
+	return usecase.twitchApiClient.ListBroadcast(options)
 }
 
-func (usecase updateLiveVideosUsecase) filteredEndedVideoIds(archiveVideos []*entity.ArchiveVideo, liveVideos []*entity.LiveVideo) []*entity.VideoId {
+func (usecase updateLiveVideosUsecase) filteredEndedVideoIds(archiveVideos []*entity.ArchiveVideo,
+	listBroadcastResponse *twitch.ListBroadcastResponse) []*entity.VideoId {
+
 	var filteredVideoIds []*entity.VideoId
 	for _, archiveVideo := range archiveVideos {
 		isLive := false
-		for _, liveVideo := range liveVideos {
-			if *archiveVideo.GetId() == *liveVideo.GetId() {
+		for _, broadcast := range listBroadcastResponse.List {
+			startedDatetime := entity.NewStartedDatetime(broadcast.StartedAt)
+			if archiveVideo.GetStartedDatetime().Equal(startedDatetime.Time()) &&
+				archiveVideo.GetStremer().String() == broadcast.UserName {
 				isLive = true
 				break
 			}

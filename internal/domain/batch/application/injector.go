@@ -35,15 +35,16 @@ func NewInjectFetchLiveVideosUsecase(ctx context.Context) usecaseBatch.FetchLive
 
 func NewInjectUpdateLiveVideosUsecase(ctx context.Context) usecaseBatch.UpdateLiveVideosUsecaseInterface {
 	config := cfg.NewConfig()
-	redis := redis.NewRedis(ctx, config)
 	postgresql := postgresql.NewPostgreSQL(config)
 
 	archiveVideoRepository := postgresqlLive.NewArchiveVideoRepository(postgresql)
-	liveVideoRepository := redisLive.NewLiveVideoRepository(redis)
+
+	client := httpClient.NewHttpClient(nil)
+	twitchApiClient := twitch.NewTwitchApiClient(client, config)
 
 	return NewUpdateLiveVideosUsecase(
-		liveVideoRepository,
 		archiveVideoRepository,
+		twitchApiClient,
 		time.Now,
 	)
 }

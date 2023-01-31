@@ -74,3 +74,8 @@ func (ins *Datetime) Lt(tm *time.Time) bool {
 func (ins *Datetime) Gt(tm *time.Time) bool {
 	return ins.Time().After(*tm)
 }
+
+// a = b
+func (ins *Datetime) Equal(tm *time.Time) bool {
+	return ins.Time().Equal(*tm)
+}
