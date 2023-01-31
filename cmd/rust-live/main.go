@@ -39,7 +39,7 @@ func main() {
 }
 
 func scheduler(cfg *cfg.Config) {
-	if !cfg.IsProd() {
+	if cfg.IsTest() {
 		return
 	}
 

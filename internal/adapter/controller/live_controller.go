@@ -16,6 +16,7 @@ type LiveController struct {
 }
 
 const (
+	listLiveVideoRequestDefaultPage  int = 1
 	listLiveVideoRequestDefaultLimit int = 10
 )
 
@@ -31,6 +32,11 @@ func (s *LiveController) ListLiveVideos(ctx context.Context, req *pb.ListLiveVid
 		limit = listLiveVideoRequestDefaultLimit
 	}
 
+	page := formData.GetPage()
+	if page == 0 {
+		page = listLiveVideoRequestDefaultPage
+	}
+
 	sortKey := entity.NewLiveVideoSortKeyFromInt(formData.GetSort())
 
 	platforms := make([]*entity.Platform, len(formData.GetPlatforms()))
@@ -41,7 +47,7 @@ func (s *LiveController) ListLiveVideos(ctx context.Context, req *pb.ListLiveVid
 		formData.GetSearchKeywords(),
 		platforms,
 		sortKey,
-		formData.GetPage(),
+		page,
 		limit,
 	)
 

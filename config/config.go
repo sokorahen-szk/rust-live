@@ -92,3 +92,7 @@ func (c *Config) Bool(value string) bool {
 func (c *Config) IsProd() bool {
 	return c.Env == "prod"
 }
+
+func (c *Config) IsTest() bool {
+	return c.Env == "test"
+}
