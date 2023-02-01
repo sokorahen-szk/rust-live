@@ -8,7 +8,7 @@ type ListLiveVideosForm struct {
 	SearchKeywords string                        `validate:"omitempty,max=20"`
 	Platform       []pb.VideoPlatform            `validate:"omitempty,dive,is_video_platform"`
 	Sort           pb.ListLiveVideosRequest_Sort `validate:"omitempty,is_list_live_video_sort"`
-	Page           int32                         `validate:"required,gte=1"`
+	Page           int32                         `validate:"omitempty,gte=1"`
 	Limit          int32                         `validate:"omitempty,gte=1"`
 }
 

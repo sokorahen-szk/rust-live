@@ -2,6 +2,8 @@ POSTGRESQL_PASSWORD=$(shell cat .env | grep POSTGRESQL_PASSWORD | awk -F"=" {'pr
 POSTGRESQL_USER=$(shell cat .env | grep POSTGRESQL_USER | awk -F"=" {'print $$2'})
 POSTGRESQL_DB_NAME=$(shell cat .env | grep POSTGRESQL_DB_NAME | awk -F"=" {'print $$2'})
 
+.PHONY: test build
+
 proto:
 	rm -f api/proto/*.go
 	protoc -I=./ --go_opt=paths=source_relative --go_out=./ \

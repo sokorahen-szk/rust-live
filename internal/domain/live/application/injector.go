@@ -15,7 +15,7 @@ func NewInjectListLiveVideosUsecase(ctx context.Context) list.ListLiveVideosUsec
 	redis := redis.NewRedis(ctx, config)
 
 	liveVideoRepository := live.NewLiveVideoRepository(redis)
-	if config.IsProd() {
+	if config.IsProd() || config.IsDev() {
 		return NewListLiveVideosUsecase(liveVideoRepository)
 	}
 
