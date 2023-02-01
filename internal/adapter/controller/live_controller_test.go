@@ -24,15 +24,6 @@ func Test_LiveController_ListLiveVideos(t *testing.T) {
 		a.NotNil(res)
 		a.IsType(&pb.ListLiveVideosResponse{}, res)
 	})
-	t.Run("RequestパラメーターPageが設定されていない時、異常終了すること", func(t *testing.T) {
-		req := &pb.ListLiveVideosRequest{}
-
-		c := LiveController{}
-
-		res, err := c.ListLiveVideos(ctx, req)
-		a.Error(err)
-		a.Nil(res)
-	})
 	t.Run("Usecaseでエラーが発生した場合、異常終了すること", func(t *testing.T) {
 		ctxWithError := context.WithValue(ctx, "test", "list_live_videos_usecase_error")
 

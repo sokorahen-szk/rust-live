@@ -28,3 +28,11 @@ docker exec app gotestsum -- -count=1 ./target/unit/test/directory -run {メソ�
 ```shell
 mockgen -source=./internal/path/to/xxxx.go -destination=./tests/path/to/mock_xxxx.go
 ```
+
+### grpc
+
+- リスト
+
+```shell
+$ grpcurl -plaintext localhost:9000 list
+```

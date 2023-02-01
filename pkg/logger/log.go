@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/sirupsen/logrus"
@@ -60,4 +61,8 @@ func Fatalf(format string, args ...interface{}) {
 
 func Debugf(format string, args ...interface{}) {
 	log.Debugf(format, args...)
+}
+
+func WriteLogDebugf(format string, args ...interface{}) {
+	log.WithFields(logrus.Fields{"msg": fmt.Sprintf(format, args...)})
 }

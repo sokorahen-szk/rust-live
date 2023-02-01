@@ -42,8 +42,8 @@ type ListVideoByUserId struct {
 }
 
 type TwitchApiClientInterface interface {
-	ListBroadcast(params []httpClient.RequestParam) (*ListBroadcastResponse, error)
-	ListVideoByUserId(userId string, params []httpClient.RequestParam) (*ListVideoByUserIdResponse, error)
+	ListBroadcast([]httpClient.RequestParam) (*ListBroadcastResponse, error)
+	ListVideoByUserId(string, []httpClient.RequestParam) (*ListVideoByUserIdResponse, error)
 }
 type TwitchApiClient struct {
 	httpClient httpClient.HttpClientInterface

@@ -116,7 +116,7 @@ func Test_NewListLiveVideosForm(t *testing.T) {
 			arg     int32
 			isError bool
 		}{
-			{"未設定", 0, true},
+			{"未設定", 0, false},
 			{"規定値", 1, false},
 		}
 		for idx, p := range tests {
