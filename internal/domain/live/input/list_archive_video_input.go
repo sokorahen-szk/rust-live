@@ -11,6 +11,7 @@ const (
 
 type ListArchiveVideoInput struct {
 	VideoStatuses []entity.VideoStatus
+	BroadcastIds  []*entity.VideoBroadcastId
 
 	SearchConditions *SearchConditions
 }

@@ -133,6 +133,27 @@ func Test_ArchiveVideoRepository_List(t *testing.T) {
 		a.NoError(err)
 		a.Len(list, 2)
 	})
+
+	t.Run("listオプション、BroadcastId(39300467242, 39300467244)2件の動画が取得できること", func(t *testing.T) {
+		postgresql.Truncate([]string{"archive_videos"})
+
+		generateArchiveVideo(t, ctx, "39300467242", datetime, entity.VideoStatusStreaming, repository)
+		generateArchiveVideo(t, ctx, "39300467243", datetime, entity.VideoStatusStreaming, repository)
+		generateArchiveVideo(t, ctx, "39300467244", datetime, entity.VideoStatusEnded, repository)
+		generateArchiveVideo(t, ctx, "39300467245", datetime, entity.VideoStatusEnded, repository)
+
+		listInput := &input.ListArchiveVideoInput{
+			BroadcastIds: []*entity.VideoBroadcastId{
+				entity.NewVideoBroadcastId("39300467242"),
+				entity.NewVideoBroadcastId("39300467244"),
+			},
+		}
+
+		list, err := repository.List(ctx, listInput)
+		a.NoError(err)
+		a.Len(list, 2)
+	})
+
 	t.Run("取得できるデータがないとき、空を返すこと", func(t *testing.T) {
 		postgresql.Truncate([]string{"archive_videos"})
 

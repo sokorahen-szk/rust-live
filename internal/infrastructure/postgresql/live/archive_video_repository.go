@@ -46,6 +46,10 @@ func (repository *archiveVideoRepository) List(ctx context.Context, listInput *i
 		postgresqlQuery.Add("status IN ?", listInput.VideoStatuses)
 	}
 
+	if len(listInput.BroadcastIds) > 0 {
+		postgresqlQuery.Add("broadcast_id IN ?", listInput.BroadcastIds)
+	}
+
 	err := repository.conn.List(
 		&achiveVideoInputs,
 		postgresqlQuery.GetQueries(),
