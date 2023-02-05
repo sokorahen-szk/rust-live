@@ -2,6 +2,7 @@ package live
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/input"
@@ -20,18 +21,18 @@ func NewArchiveVideoRepository(conn *postgresql.PostgreSql) repository.ArchiveVi
 }
 
 func (repository *archiveVideoRepository) Create(ctx context.Context, in *input.ArchiveVideoInput) error {
-	err := repository.conn.Create(in)
-	if err != nil {
-		return err
+	resultTx := repository.conn.Debug().Create(in)
+	if resultTx.Error != nil {
+		return resultTx.Error
 	}
 
 	return nil
 }
 func (repository *archiveVideoRepository) GetByBroadcastId(ctx context.Context, broadcastId *entity.VideoBroadcastId) (*entity.ArchiveVideo, error) {
 	achiveVideoInput := input.ArchiveVideoInput{}
-	err := repository.conn.Get(&achiveVideoInput, "broadcast_id = ?", broadcastId)
-	if err != nil {
-		return nil, err
+	resultTx := repository.conn.Debug().Where("broadcast_id = ?", broadcastId).First(&achiveVideoInput)
+	if resultTx.Error != nil {
+		return nil, resultTx.Error
 	}
 
 	return repository.scan(achiveVideoInput), nil
@@ -40,23 +41,28 @@ func (repository *archiveVideoRepository) GetByBroadcastId(ctx context.Context, 
 func (repository *archiveVideoRepository) List(ctx context.Context, listInput *input.ListArchiveVideoInput) ([]*entity.ArchiveVideo, error) {
 	achiveVideoInputs := []input.ArchiveVideoInput{}
 
-	postgresqlQuery := postgresql.NewPostgresqlQuery(listInput.GetSearchConditions())
+	tx := repository.conn.Debug()
+	if listInput.GetSearchConditions() == "AND" {
+		if len(listInput.VideoStatuses) > 0 {
+			tx = repository.conn.Where("status IN ?", listInput.VideoStatuses)
+		}
 
-	if len(listInput.VideoStatuses) > 0 {
-		postgresqlQuery.Add("status IN ?", listInput.VideoStatuses)
+		if len(listInput.BroadcastIds) > 0 {
+			tx = repository.conn.Where("broadcast_id IN ?", listInput.BroadcastIds)
+		}
+	} else {
+		if len(listInput.VideoStatuses) > 0 {
+			tx = repository.conn.Or("status IN ?", listInput.VideoStatuses)
+		}
+
+		if len(listInput.BroadcastIds) > 0 {
+			tx = repository.conn.Or("broadcast_id IN ?", listInput.BroadcastIds)
+		}
 	}
 
-	if len(listInput.BroadcastIds) > 0 {
-		postgresqlQuery.Add("broadcast_id IN ?", listInput.BroadcastIds)
-	}
-
-	err := repository.conn.List(
-		&achiveVideoInputs,
-		postgresqlQuery.GetQueries(),
-		postgresqlQuery.GetArgs(),
-	)
-	if err != nil {
-		return nil, err
+	resultTx := tx.Find(&achiveVideoInputs)
+	if resultTx.Error != nil {
+		return nil, resultTx.Error
 	}
 
 	return repository.scans(achiveVideoInputs), nil
@@ -64,22 +70,21 @@ func (repository *archiveVideoRepository) List(ctx context.Context, listInput *i
 
 func (repository *archiveVideoRepository) Update(ctx context.Context, id *entity.VideoId, updateInput *input.UpdateArchiveVideoInput) (*entity.ArchiveVideo, error) {
 	achiveVideoInput := input.ArchiveVideoInput{}
-	err := repository.conn.Get(&achiveVideoInput, "id = ?", id)
-	if err != nil {
-		return nil, err
-	}
 
-	updateValues := map[string]interface{}{}
+	repository.conn.Debug().First(&achiveVideoInput, id)
 	if updateInput.Status != nil {
-		updateValues["status"] = updateInput.Status.Int()
+		achiveVideoInput.Status = updateInput.Status.Int()
 	}
 	if updateInput.EndedDatetime != nil {
-		updateValues["ended_datetime"] = updateInput.EndedDatetime.Timestamp()
+		achiveVideoInput.EndedDatetime = &sql.NullTime{
+			Time:  *updateInput.EndedDatetime.Time(),
+			Valid: true,
+		}
 	}
 
-	err = repository.conn.Update(&achiveVideoInput, updateValues)
-	if err != nil {
-		return nil, err
+	resultTx := repository.conn.Save(&achiveVideoInput)
+	if resultTx.Error != nil {
+		return nil, resultTx.Error
 	}
 
 	return repository.scan(achiveVideoInput), nil
