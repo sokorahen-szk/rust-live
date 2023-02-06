@@ -6,7 +6,7 @@ import (
 	pb "github.com/sokorahen-szk/rust-live/api/proto"
 
 	"github.com/sokorahen-szk/rust-live/internal/adapter/controller/form"
-	"github.com/sokorahen-szk/rust-live/internal/domain/live/application"
+	application "github.com/sokorahen-szk/rust-live/internal/application/live"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
 	"github.com/sokorahen-szk/rust-live/internal/usecase/live/list"
 )

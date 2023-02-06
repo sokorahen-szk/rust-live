@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	controller "github.com/sokorahen-szk/rust-live/internal/adapter/controller"
-	batch "github.com/sokorahen-szk/rust-live/internal/domain/batch/application"
+	applicationBatch "github.com/sokorahen-szk/rust-live/internal/application/batch"
 	"github.com/sokorahen-szk/rust-live/pkg/logger"
 )
 
@@ -47,13 +47,13 @@ func scheduler(cfg *cfg.Config) {
 	s := gocron.NewScheduler(time.Local)
 
 	s.Every(1).Minutes().Do(func(ctx context.Context) error {
-		fetchLiveVideosUsecase := batch.NewInjectFetchLiveVideosUsecase(ctx)
+		fetchLiveVideosUsecase := applicationBatch.NewInjectFetchLiveVideosUsecase(ctx)
 		err := fetchLiveVideosUsecase.Handle(ctx)
 		if err != nil {
 			return err
 		}
 
-		updateLiveVideosUsecase := batch.NewInjectUpdateLiveVideosUsecase(ctx)
+		updateLiveVideosUsecase := applicationBatch.NewInjectUpdateLiveVideosUsecase(ctx)
 		err = updateLiveVideosUsecase.Handle(ctx)
 		if err != nil {
 			return err
