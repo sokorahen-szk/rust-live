@@ -7,6 +7,7 @@ import (
 	pb "github.com/sokorahen-szk/rust-live/api/proto"
 	cfg "github.com/sokorahen-szk/rust-live/config"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
+	"github.com/sokorahen-szk/rust-live/internal/domain/live/repository"
 	"github.com/sokorahen-szk/rust-live/internal/infrastructure/redis"
 	redisLive "github.com/sokorahen-szk/rust-live/internal/infrastructure/redis/live"
 	"github.com/sokorahen-szk/rust-live/internal/usecase/live/list"
@@ -67,7 +68,7 @@ func Test_ListLiveVideosUsecase_Handle(t *testing.T) {
 			TotalCount: 3,
 		}
 
-		err := liveVideoRepository.Create(ctx, liveVideos)
+		err := liveVideoRepository.Create(ctx, liveVideos, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 
 		actual, err := usecase.Handle(ctx, input)

@@ -10,6 +10,7 @@ import (
 	cfg "github.com/sokorahen-szk/rust-live/config"
 	"github.com/sokorahen-szk/rust-live/internal/domain/common"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
+	"github.com/sokorahen-szk/rust-live/internal/domain/live/repository"
 	"github.com/sokorahen-szk/rust-live/internal/infrastructure/batch/twitch"
 	"github.com/sokorahen-szk/rust-live/internal/infrastructure/postgresql"
 	postgresqlLive "github.com/sokorahen-szk/rust-live/internal/infrastructure/postgresql/live"
@@ -125,7 +126,7 @@ func Test_FetchLiveVideosUsecase_Handle(t *testing.T) {
 
 		platforms := []*entity.Platform{}
 		listInput := list.NewListLiveVideoInput("", platforms, sortKey, 1, 0)
-		actualLiveVideos, err := liveVideoRepository.List(ctx, listInput)
+		actualLiveVideos, err := liveVideoRepository.List(ctx, listInput, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 		a.Len(actualLiveVideos, 1)
 		a.Equal(actualArchiveVideo.GetId().Int(), actualLiveVideos[0].GetId().Int())

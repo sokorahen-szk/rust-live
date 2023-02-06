@@ -94,7 +94,7 @@ func (usecase fetchLiveVideosUsecase) createArchiveVideos(ctx context.Context, i
 }
 
 func (usecase fetchLiveVideosUsecase) createLiveVideos(ctx context.Context, liveVideos []*entity.LiveVideo) error {
-	return usecase.liveVideoRepository.Create(ctx, liveVideos)
+	return usecase.liveVideoRepository.Create(ctx, liveVideos, repository.TwitchLiveVideoKey)
 }
 
 func (usecase fetchLiveVideosUsecase) fetchTwitchApiDataToLocalStorage(ctx context.Context,

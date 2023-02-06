@@ -19,16 +19,15 @@ type liveVideoRepository struct {
 	conn *redis.Redis
 }
 
-const liveVideoListKey = "live_video_list_key"
-
 func NewLiveVideoRepository(conn *redis.Redis) repository.LiveVideoRepositoryInterface {
 	return &liveVideoRepository{
 		conn: conn,
 	}
 }
 
-func (repository *liveVideoRepository) List(ctx context.Context, listInput *list.ListLiveVideoInput) ([]*entity.LiveVideo, error) {
-	liveVideos, err := repository.scans(ctx)
+func (repository *liveVideoRepository) List(ctx context.Context,
+	listInput *list.ListLiveVideoInput, keyName repository.CacheLiveVideoListKey) ([]*entity.LiveVideo, error) {
+	liveVideos, err := repository.scans(ctx, keyName)
 	if err != nil {
 		return liveVideos, err
 	}
@@ -36,7 +35,8 @@ func (repository *liveVideoRepository) List(ctx context.Context, listInput *list
 	return repository.listFilter(liveVideos, listInput), nil
 }
 
-func (repository *liveVideoRepository) Create(ctx context.Context, liveVideos []*entity.LiveVideo) error {
+func (repository *liveVideoRepository) Create(ctx context.Context,
+	liveVideos []*entity.LiveVideo, keyName repository.CacheLiveVideoListKey) error {
 	serializeData, err := json.Marshal(&liveVideos)
 	if err != nil {
 		return err
@@ -45,7 +45,7 @@ func (repository *liveVideoRepository) Create(ctx context.Context, liveVideos []
 	logger.Debugf("serializeData = %s", serializeData)
 
 	setData := &redis.RedisSetData{
-		Key:   liveVideoListKey,
+		Key:   string(keyName),
 		Value: serializeData,
 		Ttl:   nil,
 	}
@@ -57,8 +57,8 @@ func (repository *liveVideoRepository) Create(ctx context.Context, liveVideos []
 	return nil
 }
 
-func (repository *liveVideoRepository) Count(ctx context.Context) (int, error) {
-	liveVideos, err := repository.scans(ctx)
+func (repository *liveVideoRepository) Count(ctx context.Context, keyName repository.CacheLiveVideoListKey) (int, error) {
+	liveVideos, err := repository.scans(ctx, keyName)
 	if err != nil {
 		return 0, err
 	}
@@ -66,8 +66,8 @@ func (repository *liveVideoRepository) Count(ctx context.Context) (int, error) {
 	return len(liveVideos), nil
 }
 
-func (repository *liveVideoRepository) Analytics(ctx context.Context) (*live.AnalyticsOutput, error) {
-	liveVideos, err := repository.scans(ctx)
+func (repository *liveVideoRepository) Analytics(ctx context.Context, keyName repository.CacheLiveVideoListKey) (*live.AnalyticsOutput, error) {
+	liveVideos, err := repository.scans(ctx, keyName)
 	if err != nil {
 		return nil, err
 	}
@@ -82,10 +82,11 @@ func (repository *liveVideoRepository) Analytics(ctx context.Context) (*live.Ana
 	}, nil
 }
 
-func (repository *liveVideoRepository) scans(ctx context.Context) ([]*entity.LiveVideo, error) {
+func (repository *liveVideoRepository) scans(ctx context.Context,
+	keyName repository.CacheLiveVideoListKey) ([]*entity.LiveVideo, error) {
 	var liveVideos []*entity.LiveVideo
 
-	data, err := repository.conn.Get(ctx, liveVideoListKey)
+	data, err := repository.conn.Get(ctx, string(keyName))
 	if err != nil {
 		if errors.Is(&redis.RedisCacheEmptyError{}, err) {
 			return liveVideos, nil
