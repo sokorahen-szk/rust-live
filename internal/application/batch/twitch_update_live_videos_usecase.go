@@ -15,25 +15,25 @@ import (
 	"github.com/sokorahen-szk/rust-live/pkg/logger"
 )
 
-type updateLiveVideosUsecase struct {
+type twitchUpdateLiveVideosUsecase struct {
 	archiveVideoRepository repository.ArchiveVideoRepositoryInterface
 	twitchApiClient        twitch.TwitchApiClientInterface
 	now                    func() time.Time
 }
 
-func NewUpdateLiveVideosUsecase(
+func NewTwitchUpdateLiveVideosUsecase(
 	archiveVideoRepository repository.ArchiveVideoRepositoryInterface,
 	twitchApiClient twitch.TwitchApiClientInterface,
 	now func() time.Time,
-) usecaseBatch.UpdateLiveVideosUsecaseInterface {
-	return updateLiveVideosUsecase{
+) usecaseBatch.TwitchUpdateLiveVideosUsecaseInterface {
+	return twitchUpdateLiveVideosUsecase{
 		archiveVideoRepository: archiveVideoRepository,
 		twitchApiClient:        twitchApiClient,
 		now:                    now,
 	}
 }
 
-func (usecase updateLiveVideosUsecase) Handle(ctx context.Context) error {
+func (usecase twitchUpdateLiveVideosUsecase) Handle(ctx context.Context) error {
 	now := usecase.now()
 	currentDatetime := common.NewDatetimeFromTime(&now)
 
@@ -59,7 +59,7 @@ func (usecase updateLiveVideosUsecase) Handle(ctx context.Context) error {
 	return nil
 }
 
-func (usecase updateLiveVideosUsecase) listStreamingVideos(ctx context.Context) ([]*entity.ArchiveVideo, error) {
+func (usecase twitchUpdateLiveVideosUsecase) listStreamingVideos(ctx context.Context) ([]*entity.ArchiveVideo, error) {
 	listArchiveVideoInput := &input.ListArchiveVideoInput{
 		VideoStatuses: []entity.VideoStatus{entity.VideoStatusStreaming},
 	}
@@ -71,7 +71,7 @@ func (usecase updateLiveVideosUsecase) listStreamingVideos(ctx context.Context) 
 	return archiveVideos, nil
 }
 
-func (usecase updateLiveVideosUsecase) listTwitchBroadcast() (*twitch.ListBroadcastResponse, error) {
+func (usecase twitchUpdateLiveVideosUsecase) listTwitchBroadcast() (*twitch.ListBroadcastResponse, error) {
 	options := []httpClient.RequestParam{
 		{Key: "language", Value: "ja"},
 		{Key: "game_id", Value: twitch.RustGameId},
@@ -82,7 +82,7 @@ func (usecase updateLiveVideosUsecase) listTwitchBroadcast() (*twitch.ListBroadc
 	return usecase.twitchApiClient.ListBroadcast(options)
 }
 
-func (usecase updateLiveVideosUsecase) filteredEndedVideoIds(archiveVideos []*entity.ArchiveVideo,
+func (usecase twitchUpdateLiveVideosUsecase) filteredEndedVideoIds(archiveVideos []*entity.ArchiveVideo,
 	listBroadcastResponse *twitch.ListBroadcastResponse) []*entity.VideoId {
 
 	var filteredVideoIds []*entity.VideoId
@@ -107,7 +107,7 @@ func (usecase updateLiveVideosUsecase) filteredEndedVideoIds(archiveVideos []*en
 	return filteredVideoIds
 }
 
-func (usecase updateLiveVideosUsecase) updateVideoStatus(ctx context.Context, videoIds []*entity.VideoId,
+func (usecase twitchUpdateLiveVideosUsecase) updateVideoStatus(ctx context.Context, videoIds []*entity.VideoId,
 	currentDatetime *common.Datetime) error {
 	updateInput := &input.UpdateArchiveVideoInput{
 		Status:        entity.NewVideoStatus(entity.VideoStatusEnded),

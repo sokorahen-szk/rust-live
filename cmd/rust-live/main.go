@@ -6,15 +6,16 @@ import (
 	"net"
 	"time"
 
-	"github.com/go-co-op/gocron"
 	pb "github.com/sokorahen-szk/rust-live/api/proto"
 	cfg "github.com/sokorahen-szk/rust-live/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
 	controller "github.com/sokorahen-szk/rust-live/internal/adapter/controller"
-	applicationBatch "github.com/sokorahen-szk/rust-live/internal/application/batch"
 	"github.com/sokorahen-szk/rust-live/pkg/logger"
+
+	"github.com/go-co-op/gocron"
+	applicationBatch "github.com/sokorahen-szk/rust-live/internal/application/batch"
 )
 
 func main() {
@@ -25,7 +26,7 @@ func main() {
 		logger.Fatalf("failed server binding port %d", c.Port)
 	}
 
-	scheduler(c)
+	scheduler(context.Background(), c, time.Local)
 
 	server := grpc.NewServer()
 	reflection.Register(server)
@@ -38,22 +39,20 @@ func main() {
 	}
 }
 
-func scheduler(cfg *cfg.Config) {
+func scheduler(ctx context.Context, cfg *cfg.Config, tmLocation *time.Location) {
 	if cfg.IsTest() {
 		return
 	}
 
-	ctx := context.Background()
-	s := gocron.NewScheduler(time.Local)
-
+	s := gocron.NewScheduler(tmLocation)
 	s.Every(1).Minutes().Do(func(ctx context.Context) error {
-		fetchLiveVideosUsecase := applicationBatch.NewInjectFetchLiveVideosUsecase(ctx)
-		err := fetchLiveVideosUsecase.Handle(ctx)
+		twitchFetchLiveVideosUsecase := applicationBatch.NewInjectTwitchFetchLiveVideosUsecase(ctx)
+		err := twitchFetchLiveVideosUsecase.Handle(ctx)
 		if err != nil {
 			return err
 		}
 
-		updateLiveVideosUsecase := applicationBatch.NewInjectUpdateLiveVideosUsecase(ctx)
+		updateLiveVideosUsecase := applicationBatch.NewInjectTwitchUpdateLiveVideosUsecase(ctx)
 		err = updateLiveVideosUsecase.Handle(ctx)
 		if err != nil {
 			return err

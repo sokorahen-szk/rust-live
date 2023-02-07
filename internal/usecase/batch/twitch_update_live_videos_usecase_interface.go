@@ -4,6 +4,6 @@ import (
 	"context"
 )
 
-type UpdateLiveVideosUsecaseInterface interface {
+type TwitchUpdateLiveVideosUsecaseInterface interface {
 	Handle(context.Context) error
 }

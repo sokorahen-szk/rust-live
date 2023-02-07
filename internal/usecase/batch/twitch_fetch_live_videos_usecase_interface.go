@@ -4,6 +4,6 @@ import (
 	"context"
 )
 
-type FetchLiveVideosUsecaseInterface interface {
+type TwitchFetchLiveVideosUsecaseInterface interface {
 	Handle(context.Context) error
 }

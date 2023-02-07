@@ -21,7 +21,7 @@ import (
 	testTwitch "github.com/sokorahen-szk/rust-live/tests/infrastructure/batch/twitch"
 )
 
-func Test_FetchLiveVideosUsecase_Handle(t *testing.T) {
+func Test_TwitchFetchLiveVideosUsecase_Handle(t *testing.T) {
 	a := assert.New(t)
 	ctx := context.Background()
 
@@ -103,7 +103,7 @@ func Test_FetchLiveVideosUsecase_Handle(t *testing.T) {
 				Times(1),
 		)
 
-		usecase := NewFetchLiveVideosUsecase(
+		usecase := NewTwitchFetchLiveVideosUsecase(
 			liveVideoRepository,
 			archiveVideoRepository,
 			mockTwitchApiClient,
@@ -169,7 +169,7 @@ func Test_FetchLiveVideosUsecase_Handle(t *testing.T) {
 				Times(1),
 		)
 
-		usecase := NewFetchLiveVideosUsecase(
+		usecase := NewTwitchFetchLiveVideosUsecase(
 			liveVideoRepository,
 			archiveVideoRepository,
 			mockTwitchApiClient,

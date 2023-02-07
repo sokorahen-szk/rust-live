@@ -15,7 +15,7 @@ import (
 	httpClient "github.com/sokorahen-szk/rust-live/pkg/http"
 )
 
-func NewInjectFetchLiveVideosUsecase(ctx context.Context) usecaseBatch.FetchLiveVideosUsecaseInterface {
+func NewInjectTwitchFetchLiveVideosUsecase(ctx context.Context) usecaseBatch.TwitchFetchLiveVideosUsecaseInterface {
 	config := cfg.NewConfig()
 	redis := redis.NewRedis(ctx, config)
 	postgresql := postgresql.NewPostgreSQL(config)
@@ -25,7 +25,7 @@ func NewInjectFetchLiveVideosUsecase(ctx context.Context) usecaseBatch.FetchLive
 	liveVideoRepository := redisLive.NewLiveVideoRepository(redis)
 	twitchApiClient := twitch.NewTwitchApiClient(client, config)
 
-	return NewFetchLiveVideosUsecase(
+	return NewTwitchFetchLiveVideosUsecase(
 		liveVideoRepository,
 		archiveVideoRepository,
 		twitchApiClient,
@@ -33,7 +33,7 @@ func NewInjectFetchLiveVideosUsecase(ctx context.Context) usecaseBatch.FetchLive
 	)
 }
 
-func NewInjectUpdateLiveVideosUsecase(ctx context.Context) usecaseBatch.UpdateLiveVideosUsecaseInterface {
+func NewInjectTwitchUpdateLiveVideosUsecase(ctx context.Context) usecaseBatch.TwitchUpdateLiveVideosUsecaseInterface {
 	config := cfg.NewConfig()
 	postgresql := postgresql.NewPostgreSQL(config)
 
@@ -42,7 +42,7 @@ func NewInjectUpdateLiveVideosUsecase(ctx context.Context) usecaseBatch.UpdateLi
 	client := httpClient.NewHttpClient(nil)
 	twitchApiClient := twitch.NewTwitchApiClient(client, config)
 
-	return NewUpdateLiveVideosUsecase(
+	return NewTwitchUpdateLiveVideosUsecase(
 		archiveVideoRepository,
 		twitchApiClient,
 		time.Now,

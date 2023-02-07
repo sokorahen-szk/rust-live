@@ -16,20 +16,20 @@ import (
 	"github.com/sokorahen-szk/rust-live/pkg/logger"
 )
 
-type fetchLiveVideosUsecase struct {
+type twitchFetchLiveVideosUsecase struct {
 	liveVideoRepository    repository.LiveVideoRepositoryInterface
 	archiveVideoRepository repository.ArchiveVideoRepositoryInterface
 	twitchApiClient        twitch.TwitchApiClientInterface
 	now                    func() time.Time
 }
 
-func NewFetchLiveVideosUsecase(
+func NewTwitchFetchLiveVideosUsecase(
 	liveVideoRepository repository.LiveVideoRepositoryInterface,
 	archiveVideoRepository repository.ArchiveVideoRepositoryInterface,
 	twitchApiClient twitch.TwitchApiClientInterface,
 	now func() time.Time,
-) usecaseBatch.FetchLiveVideosUsecaseInterface {
-	return fetchLiveVideosUsecase{
+) usecaseBatch.TwitchFetchLiveVideosUsecaseInterface {
+	return twitchFetchLiveVideosUsecase{
 		liveVideoRepository:    liveVideoRepository,
 		archiveVideoRepository: archiveVideoRepository,
 		twitchApiClient:        twitchApiClient,
@@ -37,7 +37,7 @@ func NewFetchLiveVideosUsecase(
 	}
 }
 
-func (usecase fetchLiveVideosUsecase) Handle(ctx context.Context) error {
+func (usecase twitchFetchLiveVideosUsecase) Handle(ctx context.Context) error {
 	now := usecase.now()
 	currentDatetime := common.NewDatetimeFromTime(&now)
 
@@ -56,7 +56,7 @@ func (usecase fetchLiveVideosUsecase) Handle(ctx context.Context) error {
 	return nil
 }
 
-func (usecase fetchLiveVideosUsecase) listTwitchBroadcast() (*twitch.ListBroadcastResponse, error) {
+func (usecase twitchFetchLiveVideosUsecase) listTwitchBroadcast() (*twitch.ListBroadcastResponse, error) {
 	options := []httpClient.RequestParam{
 		{Key: "language", Value: "ja"},
 		{Key: "game_id", Value: twitch.RustGameId},
@@ -67,7 +67,7 @@ func (usecase fetchLiveVideosUsecase) listTwitchBroadcast() (*twitch.ListBroadca
 	return usecase.twitchApiClient.ListBroadcast(options)
 }
 
-func (usecase fetchLiveVideosUsecase) listTwitchVideoByUserId(userId string) (*twitch.ListVideoByUserIdResponse, error) {
+func (usecase twitchFetchLiveVideosUsecase) listTwitchVideoByUserId(userId string) (*twitch.ListVideoByUserIdResponse, error) {
 	options := []httpClient.RequestParam{
 		{Key: "first", Value: "1"},
 	}
@@ -75,7 +75,7 @@ func (usecase fetchLiveVideosUsecase) listTwitchVideoByUserId(userId string) (*t
 	return usecase.twitchApiClient.ListVideoByUserId(userId, options)
 }
 
-func (usecase fetchLiveVideosUsecase) createArchiveVideos(ctx context.Context, in *input.ArchiveVideoInput) *entity.VideoId {
+func (usecase twitchFetchLiveVideosUsecase) createArchiveVideos(ctx context.Context, in *input.ArchiveVideoInput) *entity.VideoId {
 	searchBroadcastId := entity.NewVideoBroadcastId(in.BroadcastId)
 	archiveVideo, _ := usecase.archiveVideoRepository.GetByBroadcastId(ctx, searchBroadcastId)
 
@@ -93,11 +93,11 @@ func (usecase fetchLiveVideosUsecase) createArchiveVideos(ctx context.Context, i
 	return videoId
 }
 
-func (usecase fetchLiveVideosUsecase) createLiveVideos(ctx context.Context, liveVideos []*entity.LiveVideo) error {
+func (usecase twitchFetchLiveVideosUsecase) createLiveVideos(ctx context.Context, liveVideos []*entity.LiveVideo) error {
 	return usecase.liveVideoRepository.Create(ctx, liveVideos, repository.TwitchLiveVideoKey)
 }
 
-func (usecase fetchLiveVideosUsecase) fetchTwitchApiDataToLocalStorage(ctx context.Context,
+func (usecase twitchFetchLiveVideosUsecase) fetchTwitchApiDataToLocalStorage(ctx context.Context,
 	currentDatetime *common.Datetime) ([]*entity.LiveVideo, error) {
 	ListBroadcastResponse, err := usecase.listTwitchBroadcast()
 	if err != nil {
@@ -164,10 +164,10 @@ func (usecase fetchLiveVideosUsecase) fetchTwitchApiDataToLocalStorage(ctx conte
 	return liveVideos, nil
 }
 
-func (usecase fetchLiveVideosUsecase) convertTwtichArchiveVideoUrl(broadcastId *entity.VideoBroadcastId) *entity.VideoUrl {
+func (usecase twitchFetchLiveVideosUsecase) convertTwtichArchiveVideoUrl(broadcastId *entity.VideoBroadcastId) *entity.VideoUrl {
 	return entity.NewVideoUrl(fmt.Sprintf("https://www.twitch.tv/videos/%s", broadcastId.String()))
 }
 
-func (usecase fetchLiveVideosUsecase) convertTwitchLiveVideoUrl(userLoginName string) *entity.VideoUrl {
+func (usecase twitchFetchLiveVideosUsecase) convertTwitchLiveVideoUrl(userLoginName string) *entity.VideoUrl {
 	return entity.NewVideoUrl(fmt.Sprintf("https://www.twitch.tv/%s", userLoginName))
 }

@@ -19,7 +19,7 @@ import (
 	testTwitch "github.com/sokorahen-szk/rust-live/tests/infrastructure/batch/twitch"
 )
 
-func Test_UpdateLiveVideosUsecase_Handle(t *testing.T) {
+func Test_TwitchUpdateLiveVideosUsecase_Handle(t *testing.T) {
 	a := assert.New(t)
 	ctx := context.Background()
 
@@ -83,7 +83,7 @@ func Test_UpdateLiveVideosUsecase_Handle(t *testing.T) {
 				Times(1),
 		)
 
-		usecase := NewUpdateLiveVideosUsecase(
+		usecase := NewTwitchUpdateLiveVideosUsecase(
 			archiveVideoRepository,
 			mockTwitchApiClient,
 			now.TimeFunc(),
@@ -134,7 +134,7 @@ func Test_UpdateLiveVideosUsecase_Handle(t *testing.T) {
 				Times(1),
 		)
 
-		usecase := NewUpdateLiveVideosUsecase(
+		usecase := NewTwitchUpdateLiveVideosUsecase(
 			archiveVideoRepository,
 			mockTwitchApiClient,
 			now.TimeFunc(),
