@@ -6,6 +6,7 @@ import (
 
 	cfg "github.com/sokorahen-szk/rust-live/config"
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/entity"
+	"github.com/sokorahen-szk/rust-live/internal/domain/live/repository"
 	"github.com/sokorahen-szk/rust-live/internal/infrastructure/redis"
 	"github.com/sokorahen-szk/rust-live/internal/usecase/live/list"
 	"github.com/stretchr/testify/assert"
@@ -28,10 +29,10 @@ func Test_LiveVideoRepository_Create(t *testing.T) {
 			mockEntity.NewMockLiveVideo(2),
 			mockEntity.NewMockLiveVideo(3),
 		}
-		err := liveVideoRepository.Create(ctx, liveVideos)
+		err := liveVideoRepository.Create(ctx, liveVideos, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 
-		actualLiveVideos, err := liveVideoRepository.List(ctx, &list.ListLiveVideoInput{})
+		actualLiveVideos, err := liveVideoRepository.List(ctx, &list.ListLiveVideoInput{}, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 		a.Len(actualLiveVideos, 3)
 	})
@@ -40,10 +41,10 @@ func Test_LiveVideoRepository_Create(t *testing.T) {
 		redis.Truncate()
 
 		emptyLiveVideos := []*entity.LiveVideo{}
-		err := liveVideoRepository.Create(ctx, emptyLiveVideos)
+		err := liveVideoRepository.Create(ctx, emptyLiveVideos, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 
-		actualLiveVideos, err := liveVideoRepository.List(ctx, &list.ListLiveVideoInput{})
+		actualLiveVideos, err := liveVideoRepository.List(ctx, &list.ListLiveVideoInput{}, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 		a.Len(actualLiveVideos, 0)
 	})
@@ -75,7 +76,7 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 			mockEntity.NewMockLiveVideo(3),
 		}
 
-		err := liveVideoRepository.Create(ctx, liveVideos)
+		err := liveVideoRepository.Create(ctx, liveVideos, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 
 		tests := []struct {
@@ -97,7 +98,7 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 			)
 
 			t.Run(p.name, func(t *testing.T) {
-				actual, err := liveVideoRepository.List(ctx, input)
+				actual, err := liveVideoRepository.List(ctx, input, repository.TwitchLiveVideoKey)
 				a.Len(actual, p.want)
 				a.NoError(err)
 			})
@@ -122,12 +123,12 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 			liveVideo3,
 		}
 
-		err := liveVideoRepository.Create(ctx, liveVideos)
+		err := liveVideoRepository.Create(ctx, liveVideos, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 
 		t.Run("viewerで昇順検索が正しくできること", func(t *testing.T) {
 			listInput := list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(entity.LiveVideoViewerAsc), 1, 0)
-			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
+			actualListVideos, err := liveVideoRepository.List(ctx, listInput, repository.TwitchLiveVideoKey)
 			a.NoError(err)
 			a.Equal(liveVideo.GetViewer(), actualListVideos[0].GetViewer())
 			a.Equal(liveVideo3.GetViewer(), actualListVideos[1].GetViewer())
@@ -135,7 +136,7 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 		})
 		t.Run("viewerで降順検索が正しくできること", func(t *testing.T) {
 			listInput := list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(entity.LiveVideoViewerDesc), 1, 0)
-			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
+			actualListVideos, err := liveVideoRepository.List(ctx, listInput, repository.TwitchLiveVideoKey)
 			a.NoError(err)
 			a.Equal(liveVideo2.GetViewer(), actualListVideos[0].GetViewer())
 			a.Equal(liveVideo3.GetViewer(), actualListVideos[1].GetViewer())
@@ -143,7 +144,7 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 		})
 		t.Run("startedDatetimeで昇順検索が正しくできること", func(t *testing.T) {
 			listInput := list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(entity.LiveVideoStartedDatetimeAsc), 1, 0)
-			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
+			actualListVideos, err := liveVideoRepository.List(ctx, listInput, repository.TwitchLiveVideoKey)
 			a.NoError(err)
 			a.Equal(liveVideo2.GetStartedDatetime(), actualListVideos[0].GetStartedDatetime())
 			a.Equal(liveVideo3.GetStartedDatetime(), actualListVideos[1].GetStartedDatetime())
@@ -151,7 +152,7 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 		})
 		t.Run("startedDatetimeで降順検索が正しくできること", func(t *testing.T) {
 			listInput := list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(entity.LiveVideoStartedDatetimeDesc), 1, 0)
-			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
+			actualListVideos, err := liveVideoRepository.List(ctx, listInput, repository.TwitchLiveVideoKey)
 			a.NoError(err)
 			a.Equal(liveVideo.GetStartedDatetime(), actualListVideos[0].GetStartedDatetime())
 			a.Equal(liveVideo3.GetStartedDatetime(), actualListVideos[1].GetStartedDatetime())
@@ -171,26 +172,26 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 			liveVideo3,
 		}
 
-		err := liveVideoRepository.Create(ctx, liveVideos)
+		err := liveVideoRepository.Create(ctx, liveVideos, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 
 		t.Run("3件中2件毎に取得した場合、2ページ分のデータが取得できること", func(t *testing.T) {
 			listInput := list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(1), 1, 2)
-			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
+			actualListVideos, err := liveVideoRepository.List(ctx, listInput, repository.TwitchLiveVideoKey)
 			a.NoError(err)
 			a.Len(actualListVideos, 2)
 			a.Equal(liveVideo.GetId(), actualListVideos[0].GetId())
 			a.Equal(liveVideo2.GetId(), actualListVideos[1].GetId())
 
 			listInput = list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(1), 2, 2)
-			actualListVideos, err = liveVideoRepository.List(ctx, listInput)
+			actualListVideos, err = liveVideoRepository.List(ctx, listInput, repository.TwitchLiveVideoKey)
 			a.NoError(err)
 			a.Len(actualListVideos, 1)
 			a.Equal(liveVideo3.GetId(), actualListVideos[0].GetId())
 		})
 		t.Run("3件中3件毎に取得した場合、1ページ分のデータが取得できること", func(t *testing.T) {
 			listInput := list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(1), 1, 3)
-			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
+			actualListVideos, err := liveVideoRepository.List(ctx, listInput, repository.TwitchLiveVideoKey)
 			a.NoError(err)
 			a.Len(actualListVideos, 3)
 			a.Equal(liveVideo.GetId(), actualListVideos[0].GetId())
@@ -198,7 +199,7 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 			a.Equal(liveVideo3.GetId(), actualListVideos[2].GetId())
 
 			listInput = list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(1), 2, 3)
-			actualListVideos, err = liveVideoRepository.List(ctx, listInput)
+			actualListVideos, err = liveVideoRepository.List(ctx, listInput, repository.TwitchLiveVideoKey)
 			a.NoError(err)
 			a.Len(actualListVideos, 0)
 		})
@@ -216,11 +217,11 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 			liveVideo3,
 		}
 
-		err := liveVideoRepository.Create(ctx, liveVideos)
+		err := liveVideoRepository.Create(ctx, liveVideos, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 
 		listInput := list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(1), 1, 3)
-		actualListVideos, err := liveVideoRepository.List(ctx, listInput)
+		actualListVideos, err := liveVideoRepository.List(ctx, listInput, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 		a.Len(actualListVideos, 3)
 		a.Equal(liveVideo.GetId(), actualListVideos[0].GetId())
@@ -242,12 +243,12 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 			liveVideo3,
 		}
 
-		err := liveVideoRepository.Create(ctx, liveVideos)
+		err := liveVideoRepository.Create(ctx, liveVideos, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 
 		t.Run("プラットフォームをtwitchに指定し、2件取得できること", func(t *testing.T) {
 			listInput := list.NewListLiveVideoInput("", correctPlatforms, entity.NewLiveVideoSortKey(1), 1, 10)
-			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
+			actualListVideos, err := liveVideoRepository.List(ctx, listInput, repository.TwitchLiveVideoKey)
 			a.NoError(err)
 			a.Len(actualListVideos, 2)
 			a.Equal(liveVideo.GetId(), actualListVideos[0].GetId())
@@ -258,7 +259,7 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 				entity.NewPlatform(entity.PlatformYoutube),
 			}
 			listInput := list.NewListLiveVideoInput("", youtubePlatform, entity.NewLiveVideoSortKey(1), 1, 10)
-			actualListVideos, err := liveVideoRepository.List(ctx, listInput)
+			actualListVideos, err := liveVideoRepository.List(ctx, listInput, repository.TwitchLiveVideoKey)
 			a.NoError(err)
 			a.Len(actualListVideos, 1)
 			a.Equal(liveVideo3.GetId(), actualListVideos[0].GetId())
@@ -268,7 +269,7 @@ func Test_LiveVideoRepository_List(t *testing.T) {
 	t.Run("redis内にデータが1件も存在しない場合、空配列を返すこと", func(t *testing.T) {
 		redis.Truncate()
 
-		liveVideos, err := liveVideoRepository.List(ctx, &list.ListLiveVideoInput{})
+		liveVideos, err := liveVideoRepository.List(ctx, &list.ListLiveVideoInput{}, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 		a.Len(liveVideos, 0)
 	})
@@ -284,7 +285,7 @@ func Test_LiveVideoRepository_Count(t *testing.T) {
 	t.Run("0件の場合", func(t *testing.T) {
 		redis.Truncate()
 
-		count, err := liveVideoRepository.Count(ctx)
+		count, err := liveVideoRepository.Count(ctx, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 		a.Equal(0, count)
 	})
@@ -299,10 +300,10 @@ func Test_LiveVideoRepository_Count(t *testing.T) {
 			mockEntity.NewMockLiveVideo(5),
 		}
 
-		err := liveVideoRepository.Create(ctx, liveVideos)
+		err := liveVideoRepository.Create(ctx, liveVideos, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 
-		count, err := liveVideoRepository.Count(ctx)
+		count, err := liveVideoRepository.Count(ctx, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 		a.Equal(5, count)
 	})
@@ -318,7 +319,7 @@ func Test_LiveVideoRepository_Analytics(t *testing.T) {
 	t.Run("0件の場合", func(t *testing.T) {
 		redis.Truncate()
 
-		output, err := liveVideoRepository.Analytics(ctx)
+		output, err := liveVideoRepository.Analytics(ctx, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 		a.Equal(0, output.GetViewers())
 	})
@@ -333,10 +334,10 @@ func Test_LiveVideoRepository_Analytics(t *testing.T) {
 			mockEntity.NewMockLiveVideo(5),
 		}
 
-		err := liveVideoRepository.Create(ctx, liveVideos)
+		err := liveVideoRepository.Create(ctx, liveVideos, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 
-		output, err := liveVideoRepository.Analytics(ctx)
+		output, err := liveVideoRepository.Analytics(ctx, repository.TwitchLiveVideoKey)
 		a.NoError(err)
 		a.Equal(50, output.GetViewers())
 	})

@@ -1,4 +1,4 @@
-package application
+package application_live
 
 import (
 	"context"
@@ -22,12 +22,12 @@ func NewListLiveVideosUsecase(
 }
 
 func (ins listLiveVideosUsecase) Handle(ctx context.Context, input *list.ListLiveVideoInput) (*pb.ListLiveVideosResponse, error) {
-	liveVideos, err := ins.liveVideoRepository.List(ctx, input)
+	liveVideos, err := ins.liveVideoRepository.List(ctx, input, repository.TwitchLiveVideoKey)
 	if err != nil {
 		return nil, err
 	}
 
-	liveVideoTotalCount, err := ins.liveVideoRepository.Count(ctx)
+	liveVideoTotalCount, err := ins.liveVideoRepository.Count(ctx, repository.TwitchLiveVideoKey)
 	if err != nil {
 		return nil, err
 	}
