@@ -8,7 +8,6 @@ import (
 	"github.com/sokorahen-szk/rust-live/internal/domain/live/repository"
 	"github.com/sokorahen-szk/rust-live/internal/infrastructure/batch/youtube"
 	usecaseBatch "github.com/sokorahen-szk/rust-live/internal/usecase/batch"
-	"github.com/sokorahen-szk/rust-live/pkg/logger"
 )
 
 type youtubeFetchLiveVideosUsecase struct {
@@ -49,7 +48,22 @@ func (usecase youtubeFetchLiveVideosUsecase) fetchTwitchApiDataToLocalStorage(ct
 		return nil, err
 	}
 
-	logger.Infof("%+v", listBroadcastResponse)
+	videoIds := usecase.toVideoIds(listBroadcastResponse)
 
+	listVideoByVideoIdsResponse, err := usecase.youtubeApiClient.ListVideoByVideoIds(videoIds)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO:
 	return nil, nil
+}
+
+func (usecase youtubeFetchLiveVideosUsecase) toVideoIds(listBroadcastResponse *youtube.ListBroadcastResponse) []string {
+	videoIds := make([]string, 0, len(listBroadcastResponse.List))
+	for _, broadcastData := range listBroadcastResponse.List {
+		videoIds = append(videoIds, broadcastData.Id.VideoId)
+	}
+
+	return videoIds
 }
