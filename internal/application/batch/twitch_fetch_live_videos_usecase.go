@@ -99,13 +99,13 @@ func (usecase twitchFetchLiveVideosUsecase) createLiveVideos(ctx context.Context
 
 func (usecase twitchFetchLiveVideosUsecase) fetchTwitchApiDataToLocalStorage(ctx context.Context,
 	currentDatetime *common.Datetime) ([]*entity.LiveVideo, error) {
-	ListBroadcastResponse, err := usecase.listTwitchBroadcast()
+	listBroadcastResponse, err := usecase.listTwitchBroadcast()
 	if err != nil {
 		return nil, err
 	}
 
 	liveVideos := make([]*entity.LiveVideo, 0)
-	for _, broadcastData := range ListBroadcastResponse.List {
+	for _, broadcastData := range listBroadcastResponse.List {
 		listVideoByUserIdRes, err := usecase.listTwitchVideoByUserId(broadcastData.UserId)
 		if err != nil {
 			logger.Infof("failed twitchApiClient.ListBroadcast() err: %+v", err)
